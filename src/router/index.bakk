@@ -1,0 +1,1708 @@
+import Vue from 'vue'
+import Router from 'vue-router'
+import { getToken } from '@/assets/js/util'
+Vue.use(Router)
+window.getVersion = version => {
+  if ((localStorage.frontendVersion && version !== localStorage.frontendVersion) || (window.frontendVersion && version !== window.frontendVersion)) {
+    location.reload() // 刷新页面
+  }
+  localStorage.frontendVersion = version // 保存 以便下次使用判断
+  window.frontendVersion = version // 保存 以便下次使用判断
+}
+export default new Router({
+  routes: [
+    {
+      path: '*',
+      redirect: '/404'
+    },
+    {
+      path: '/',
+      redirect: getToken('isLogin') ? '/homepage' : 'login'
+    },
+    {
+      path: '/login',
+      name: 'Login',
+      component: () => import(/* webpackChunkName: "Login" */'views/login')
+    },
+    {
+      path: '/maintain',
+      name: 'Maintain',
+      component: () => import(/* webpackChunkName: "Maintain" */'views/maintain')
+    },
+    {
+      path: '/login',
+      name: 'Login',
+      component: () => import(/* webpackChunkName: "Login" */'views/login')
+    },
+    {
+      path: '/staffDetail',
+      name: 'StaffDetail',
+      component: () => import(/* webpackChunkName: "StaffDetail" */'views/staffDetail')
+    },
+    {
+      path: '/entryDetail',
+      name: 'EntryDetail',
+      component: () => import(/* webpackChunkName: "EntryDetail" */'views/entryDetail')
+    },
+    {
+      path: '/below-ie8',
+      name: 'BelowIe8',
+      component: () => import(/* webpackChunkName: "BelowIe8" */'views/below-ie8')
+    },
+    {
+      path: '/home',
+      meta: { title: '首页' },
+      component: () => import(/* webpackChunkName: "Home" */ 'views/home'),
+      children: [
+        {
+          path: '/404',
+          name: 'NotFound',
+          component: () => import(/* webpackChunkName: "NotFound" */ 'views/404'),
+          meta: { title: '错误页面' }
+        },
+        {
+          path: '/',
+          redirect: '/homepage'
+        },
+        {
+          path: '/homepage',
+          name: 'Index',
+          meta: { title: '首页' },
+          component: () => import(/* webpackChunkName: "Index" */'views/homepage/index'),
+          children: [
+            {
+              path: '/',
+              redirect: '/homepage/message/waitSocial'
+            },
+            {
+              path: '/homepage/message/waitSocial',
+              name: 'WaitSocial',
+              meta: { title: '社保待参保' },
+              component: () => import(/* webpackChunkName: "WaitSocial" */'views/personnal-information/social/waitSocial')
+            },
+            {
+              path: '/homepage/message/stopSocial',
+              name: '社保待停保',
+              meta: { title: '社保待停保' },
+              component: () => import(/* webpackChunkName: "stopSocial" */'views/personnal-information/social/stopSocial')
+            },
+            {
+              path: '/homepage/message/waitProviden',
+              name: '公积金待办理',
+              meta: { title: '公积金待办理' },
+              component: () => import(/* webpackChunkName: "WaitProviden" */'views/personnal-information/providentFund/waitProviden')
+            },
+            {
+              path: '/homepage/message/stopProviden',
+              name: '公积金待停缴',
+              meta: { title: '公积金待停缴' },
+              component: () => import(/* webpackChunkName: "StopProviden" */'views/personnal-information/providentFund/stopProviden')
+            },
+            {
+              path: '/homepage/message/waitEmploy',
+              name: '协议待签订',
+              meta: { title: '协议待签订' },
+              component: () => import(/* webpackChunkName: "WaitEmploy" */'views/homepage/message/waitEmploy')
+            },
+            {
+              path: '/homepage/message/stopEmploy',
+              name: '协议待解除',
+              meta: { title: '协议待解除' },
+              component: () => import(/* webpackChunkName: "StopEmploy" */'views/homepage/message/stopEmploy')
+            },
+            {
+              path: '/homepage/message/waitContract',
+              name: '合同待签订',
+              meta: { title: '合同待签订' },
+              component: () => import(/* webpackChunkName: "WaitContract" */'views/homepage/message/waitContract')
+            },
+            {
+              path: '/homepage/message/stopContract',
+              name: '合同待解除',
+              meta: { title: '合同待解除' },
+              component: () => import(/* webpackChunkName: "StopContract" */'views/homepage/message/stopContract')
+            },
+            {
+              path: '/homepage/message/continueContract',
+              name: '合同到期提醒',
+              meta: { title: '合同到期提醒' },
+              component: () => import(/* ContinueContract: "ContractPut" */'views/homepage/message/renewalContract')
+            },
+            {
+              path: '/homepage/message/giftBag',
+              name: '节日礼包上报提醒',
+              meta: { title: '节日礼包上报提醒' },
+              component: () => import(/* webpackChunkName: "HomeGiftBag" */'views/homepage/message/giftBag')
+            },
+            {
+              path: '/homepage/message/grant',
+              name: '实物发放上报提醒',
+              meta: { title: '实物发放上报提醒' },
+              component: () => import(/* webpackChunkName: "HomeGrant" */'views/homepage/message/grant')
+            }
+          ]
+        },
+        {
+          path: '/homepage/cockpit',
+          name: '驾驶舱',
+          meta: { title: '驾驶舱' },
+          component: () => import(/* webpackChunkName: "Cockpit" */'views/homepage/cockpit')
+        },
+        {
+          path: '/recruitment',
+          // name: '招聘管理',
+          meta: { title: '招聘管理' },
+          component: () => import(/* webpackChunkName: "Recruitment" */'views/recruitment/index'),
+          children: [
+            {
+              path: '/',
+              redirect: '/recruitment/post'
+            },
+            {
+              path: '/recruitment/post',
+              name: '职位',
+              meta: { title: '职位' },
+              component: () => import(/* webpackChunkName: "RecruitmentPost" */'views/recruitment/post/index')
+            },
+            {
+              path: '/recruitment/post/post-check/:postId',
+              name: '职位查看',
+              meta: { title: '职位查看' },
+              component: () => import(/* webpackChunkName: "PostCheck" */'views/recruitment/post/post-check')
+            },
+            {
+              path: '/recruitment/post/post-add',
+              name: '职位新增',
+              meta: { title: '职位新增' },
+              component: () => import(/* webpackChunkName: "PostAdd" */'views/recruitment/post/post-add')
+            },
+            {
+              path: '/recruitment/accept',
+              // name: '应聘人员库',
+              meta: { title: '人才库' },
+              component: () => import(/* webpackChunkName: "RecruitmentAccept" */'views/recruitment/accept/index'),
+              children: [
+                {
+                  path: '/',
+                  redirect: '/recruitment/accept/all'
+                },
+                {
+                  path: '/recruitment/accept/all',
+                  name: 'AcceptAll',
+                  meta: { title: '全部' },
+                  component: () => import(/* webpackChunkName: "AcceptAll" */'views/recruitment/accept/talent/all')
+                },
+                {
+                  path: '/recruitment/accept/wait-interview',
+                  name: 'AcceptWaitInterview',
+                  meta: { title: '待面试' },
+                  component: () => import(/* webpackChunkName: "AcceptWaitInterview" */'views/recruitment/accept/talent/wait-interview')
+                },
+                {
+                  path: '/recruitment/accept/entry',
+                  name: 'AcceptEntry',
+                  meta: { title: '入职审批' },
+                  component: () => import(/* webpackChunkName: "AcceptEntry" */'views/recruitment/accept/talent/entry')
+                },
+                {
+                  path: '/recruitment/accept/reserve',
+                  name: 'AcceptReserve',
+                  meta: { title: '储备' },
+                  component: () => import(/* webpackChunkName: "AcceptReserve" */'views/recruitment/accept/talent/reserve')
+                },
+                {
+                  path: '/recruitment/accept/non-employment',
+                  name: 'AcceptNonEmployment',
+                  meta: { title: '不录用' },
+                  component: () => import(/* webpackChunkName: "AcceptNonEmployment" */'views/recruitment/accept/talent/non-employment')
+                },
+                {
+                  path: '/recruitment/accept/have-hired',
+                  name: 'AcceptHaveHired',
+                  meta: { title: '已录用' },
+                  component: () => import(/* webpackChunkName: "AcceptHaveHired" */'views/recruitment/accept/talent/have-hired')
+                },
+                {
+                  path: '/recruitment/accept/non-interview',
+                  name: 'AcceptNonInterview',
+                  meta: { title: '未面试' },
+                  component: () => import(/* webpackChunkName: "AcceptNonInterview" */'views/recruitment/accept/talent/non-interview')
+                }
+              ]
+            },
+            {
+              path: '/recruitment/accept/accept-check/:acceptId',
+              name: '应聘人员库查看',
+              meta: { title: '应聘人员库查看' },
+              component: () => import(/* webpackChunkName: "AcceptCheck" */'views/recruitment/accept/accept-check')
+            },
+            {
+              path: '/recruitment/accept/accept-add',
+              name: '应聘人员库新增',
+              meta: { title: '应聘人员库新增' },
+              component: () => import(/* webpackChunkName: "AcceptAdd" */'views/recruitment/accept/accept-add')
+            },
+            {
+              path: '/recruitment/accept/viewInvite',
+              name: '面试邀约',
+              meta: { title: '面试邀约' },
+              component: () => import(/* webpackChunkName: "ViewInvite" */'views/recruitment/accept/viewInvite')
+            },
+            {
+              path: '/recruitment/accept/accept-edit/:acceptId',
+              name: '应聘人员库编辑',
+              meta: { title: '应聘人员库编辑' },
+              component: () => import(/* webpackChunkName: "AcceptEdit" */'views/recruitment/accept/accept-edit')
+            },
+            {
+              path: '/recruitment/means',
+              // name: '资料管理',
+              meta: { title: '资料管理' },
+              component: () => import(/* webpackChunkName: "RecruitmentMeans" */'views/recruitment/means/index'),
+              children: [
+                {
+                  path: '/',
+                  redirect: '/recruitment/means/transfer'
+                },
+                {
+                  path: '/recruitment/means/transfer',
+                  // name: '资料移交',
+                  meta: { title: '资料移交' },
+                  component: () => import(/* webpackChunkName: "MeansTransfer" */'views/recruitment/means/transfer')
+                },
+                {
+                  path: '/recruitment/means/receive',
+                  // name: '资料接受',
+                  meta: { title: '资料接受' },
+                  component: () => import(/* webpackChunkName: "MeansReceive" */'views/recruitment/means/receive')
+                }
+              ]
+            },
+            {
+              path: '/recruitment/means/receive-detail',
+              // name: '资料详情',
+              meta: { title: '资料详情' },
+              component: () => import(/* webpackChunkName: "ReceiveDetail" */'views/recruitment/means/receive-detail/index'),
+              children: [
+                {
+                  path: '/',
+                  redirect: '/recruitment/means/receive-detail/labor/:meansId/:udtId'
+                },
+                {
+                  path: '/recruitment/means/receive-detail/labor/:meansId/:udtId',
+                  name: '资料详情劳动人事信息',
+                  meta: { title: '资料详情劳动人事信息' },
+                  component: () => import(/* webpackChunkName: "ReceiveLabor" */'views/recruitment/means/receive-detail/labor')
+                },
+                {
+                  path: '/recruitment/means/receive-detail/personnal/:meansId/:udtId',
+                  name: '资料详情个人档案',
+                  meta: { title: '资料详情个人档案' },
+                  component: () => import(/* webpackChunkName: "ReceivePersonnal" */'views/recruitment/means/receive-detail/personnal')
+                }
+              ]
+            }
+          ]
+        },
+        {
+          path: '/personnel-information',
+          // name: '人事信息管理',
+          meta: { title: '人事信息管理' },
+          component: () => import(/* webpackChunkName: "PersonnalInformation" */'views/personnal-information/index'),
+          children: [
+            {
+              path: '/',
+              redirect: '/personnel-information/base'
+            },
+            {
+              path: '/personnel-information/base/update/:id/:status',
+              name: 'PersonnalBaseUpdate',
+              meta: { title: '员工信息更新' },
+              component: () => import(/* webpackChunkName: "PersonnalBaseUpdate" */ 'views/personnal-information/base/modifies/update')
+            },
+            {
+              path: '/personnel-information/base/corrections/:id/:status',
+              name: 'PersonnalBaseCorrections',
+              meta: { title: '员工信息更正' },
+              component: () => import(/* webpackChunkName: "PersonnalBaseCorrections" */ 'views/personnal-information/base/modifies/corrections')
+            },
+            {
+              path: '/personnel-information/base',
+              // name: 'PersonnalInformationBase',
+              meta: { title: '员工基本信息管理' },
+              component: () => import(/* webpackChunkName: "PersonnalInformationBase" */'views/personnal-information/base/index'),
+              children: [
+                {
+                  path: '/',
+                  redirect: '/personnel-information/base/on-job'
+                },
+                {
+                  path: '/personnel-information/base/on-job',
+                  name: 'PersonnalInformationBaseOnJob',
+                  meta: { title: '在职人员' },
+                  component: () => import(/* webpackChunkName: "PersonnalInformationBaseOnJob" */'views/personnal-information/base/on-job')
+                },
+                {
+                  path: '/personnel-information/base/quit-job',
+                  name: 'PersonnalInformationBaseOnQuit',
+                  meta: { title: '离职人员' },
+                  component: () => import(/* webpackChunkName: "PersonnalInformationBaseOnQuit" */'views/personnal-information/base/quit-job')
+                }
+              ]
+            },
+            {
+              path: '/personnel-information/changeData',
+              meta: { title: '更新/更正查询' },
+              component: () => import(/* webpackChunkName: "PersonnalInformationChangeData" */'views/personnal-information/changeData/index'),
+              children: [
+                {
+                  path: '/',
+                  redirect: '/personnel-information/changeData/updates'
+                },
+                {
+                  path: '/personnel-information/changeData/updates',
+                  name: 'PersonnalInformationSearchUpdates',
+                  meta: { title: '更新' },
+                  component: () => import(/* webpackChunkName: "PersonnalInformationChangeDataUpdates" */'views/personnal-information/changeData/updates')
+                },
+                {
+                  path: '/personnel-information/changeData/incorrect',
+                  name: 'PersonnalInformationSearchIncorrect',
+                  meta: { title: '更正' },
+                  component: () => import(/* webpackChunkName: "PersonnalInformationChangeDataIncorrect" */'views/personnal-information/changeData/incorrect')
+                }
+              ]
+            },
+            {
+              path: '/personnel-information/add',
+              meta: { title: '员工基本信息新增' },
+              name: 'PersonEntryAdd',
+              component: () => import(/* webpackChunkName: "PersonEntryAdd" */'views/entry-view/person-entry-add')
+            },
+            {
+              path: '/personnel-information/base/base-check',
+              // name: '员工基本信息详情',
+              meta: { title: '员工基本信息详情' },
+              component: () => import(/* webpackChunkName: "BaseCheck" */'views/personnal-information/base/base-check/index'),
+              children: [
+                {
+                  path: '/',
+                  redirect: '/personnel-information/base/base-check/labor/:baseId/:status'
+                },
+                {
+                  path: '/personnel-information/base/base-check/labor/:baseId/:status',
+                  name: 'BaseLabor',
+                  meta: { title: '员工基本信息劳动人事信息' },
+                  component: () => import(/* webpackChunkName: "BaseLabor" */'views/personnal-information/base/base-check/labor')
+                },
+                {
+                  path: '/personnel-information/base/base-check/personnal/:baseId/:status',
+                  name: '员工基本信息劳动个人档案',
+                  meta: { title: '员工基本信息劳动个人档案' },
+                  component: () => import(/* webpackChunkName: "BasePersonnal" */'views/personnal-information/base/base-check/personnal')
+                },
+                {
+                  path: '/personnel-information/base/base-check/report/:baseId/:status',
+                  name: '员工基本信息操作记录',
+                  meta: { title: '员工基本信息操作记录' },
+                  component: () => import(/* webpackChunkName: "BaseReport" */'views/personnal-information/base/base-check/record')
+                },
+                {
+                  path: '/personnel-information/base/base-check/change/:baseId/:status',
+                  name: '员工基本信息变动记录',
+                  meta: { title: '员工基本信息变动记录' },
+                  component: () => import(/* webpackChunkName: "BaseChange" */'views/personnal-information/base/base-check/change')
+                },
+                {
+                  path: '/personnel-information/base/base-check/job/:baseId/:status',
+                  name: '员工基本信息职务信息',
+                  meta: { title: '员工基本信息职务信息' },
+                  component: () => import(/* webpackChunkName: "BaseJob" */'views/personnal-information/base/base-check/job')
+                },
+                {
+                  path: '/personnel-information/base/base-check/contract/:baseId/:status',
+                  name: '员工基本信息劳动',
+                  meta: { title: '员工基本信息劳动' },
+                  component: () => import(/* webpackChunkName: "BaseContract" */'views/personnal-information/base/base-check/contract')
+                },
+                {
+                  path: '/personnel-information/base/base-check/funds/:baseId/:status',
+                  name: '员工基本信息公积金',
+                  meta: { title: '员工基本信息公积金' },
+                  component: () => import(/* webpackChunkName: "BaseFunds" */'views/personnal-information/base/base-check/funds')
+                },
+                {
+                  path: '/personnel-information/base/base-check/social/:baseId/:status',
+                  name: '员工基本信息社保参保',
+                  meta: { title: '员工基本信息社保参保' },
+                  component: () => import(/* webpackChunkName: "BaseSocial" */'views/personnal-information/base/base-check/social')
+                },
+                {
+                  path: '/personnel-information/base/base-check/salary/:baseId/:status',
+                  name: '员工基本信息薪酬',
+                  meta: { title: '员工基本信息薪酬' },
+                  component: () => import(/* webpackChunkName: "BaseSalary" */'views/personnal-information/base/base-check/salary')
+                },
+                {
+                  path: '/personnel-information/base/base-check/remark/:baseId/:status',
+                  name: '员工基本信息备注',
+                  meta: { title: '员工基本信息备注' },
+                  component: () => import(/* webpackChunkName: "BaseRemark" */'views/personnal-information/base/base-check/remark')
+                }
+              ]
+            },
+            {
+              path: '/personnel-information/base/base-edit',
+              // name: '员工基本信息编辑',
+              meta: { title: '员工基本信息编辑' },
+              component: () => import(/* webpackChunkName: "BaseEdit" */'views/personnal-information/base/base-edit/index'),
+              children: [
+                {
+                  path: '/',
+                  redirect: '/personnel-information/base/base-edit/labor/:baseId/:status'
+                },
+                {
+                  path: '/personnel-information/base/base-edit/labor/:baseId/:status',
+                  name: 'BaseEditLabor',
+                  meta: { title: '员工基本信息劳动人事信息编辑' },
+                  component: () => import(/* webpackChunkName: "BaseEditLabor" */'views/personnal-information/base/base-edit/labor')
+                },
+                {
+                  path: '/personnel-information/base/base-edit/personnal/:baseId/:status',
+                  name: 'BaseEditPersonnal',
+                  meta: { title: '员工基本信息劳动个人档案编辑' },
+                  component: () => import(/* webpackChunkName: "BaseEditPersonnal" */'views/personnal-information/base/base-edit/personnal')
+                },
+                {
+                  path: '/personnel-information/base/base-edit/report/:baseId/:status',
+                  name: 'BaseEditReport',
+                  meta: { title: '员工基本信息操作记录' },
+                  component: () => import(/* webpackChunkName: "BaseReport" */'views/personnal-information/base/base-check/record')
+                },
+                {
+                  path: '/personnel-information/base/base-edit/change/:baseId/:status',
+                  name: 'BaseEditChange',
+                  meta: { title: '员工基本信息变动记录' },
+                  component: () => import(/* webpackChunkName: "BaseChange" */'views/personnal-information/base/base-check/change')
+                },
+                {
+                  path: '/personnel-information/base/base-edit/job/:baseId/:status',
+                  name: 'BaseEditJob',
+                  meta: { title: '员工基本信息职务信息' },
+                  component: () => import(/* webpackChunkName: "BaseJob" */'views/personnal-information/base/base-check/job')
+                },
+                {
+                  path: '/personnel-information/base/base-edit/contract/:baseId/:status',
+                  name: 'BaseEditContract',
+                  meta: { title: '员工基本信息劳动' },
+                  component: () => import(/* webpackChunkName: "BaseContract" */'views/personnal-information/base/base-check/contract')
+                },
+                {
+                  path: '/personnel-information/base/base-edit/funds/:baseId/:status',
+                  name: 'BaseEditFunds',
+                  meta: { title: '员工基本信息公积金' },
+                  component: () => import(/* webpackChunkName: "BaseFunds" */'views/personnal-information/base/base-check/funds')
+                },
+                {
+                  path: '/personnel-information/base/base-edit/social/:baseId/:status',
+                  name: 'BaseEditSocial',
+                  meta: { title: '员工基本信息社保参保' },
+                  component: () => import(/* webpackChunkName: "BaseSocial" */'views/personnal-information/base/base-check/social')
+                },
+                {
+                  path: '/personnel-information/base/base-edit/salary/:baseId/:status',
+                  name: 'BaseEditSalary',
+                  meta: { title: '员工基本信息薪酬' },
+                  component: () => import(/* webpackChunkName: "BaseSalary" */'views/personnal-information/base/base-check/salary')
+                },
+                {
+                  path: '/personnel-information/base/base-edit/remark/:baseId/:status',
+                  name: 'BaseEditRemark',
+                  meta: { title: '员工基本信息备注' },
+                  component: () => import(/* webpackChunkName: "BaseRemark" */'views/personnal-information/base/base-check/remark')
+                }
+              ]
+            },
+            {
+              path: '/personnel-information/job',
+              name: '干部管理',
+              meta: { title: '干部管理' },
+              component: () => import(/* webpackChunkName: "PersonnalInformationJob" */'views/personnal-information/job/index')
+            },
+            {
+              path: '/personnel-information/job-add/:jobId',
+              name: '新增干部',
+              meta: { title: '新增干部' },
+              component: () => import(/* webpackChunkName: "PersonnalInformationJobAdd" */'views/personnal-information/job/job-add')
+            },
+            {
+              path: '/personnel-information/job-check/:jobId/:jobUserId',
+              name: '干部详情',
+              meta: { title: '干部详情' },
+              component: () => import(/* webpackChunkName: "PersonnalInformationJobCheck" */'views/personnal-information/job/job-check')
+            },
+            {
+              path: '/personnel-information/job-exempt/:jobId/:jobUserId',
+              name: '干部免除',
+              meta: { title: '干部免除' },
+              component: () => import(/* webpackChunkName: "PersonnalInformationJobExempt" */'views/personnal-information/job/job-exempt')
+            },
+            {
+              path: '/personnel-information/contract',
+              // name: '劳动关系管理',
+              meta: { title: '劳动关系管理' },
+              component: () => import(/* webpackChunkName: "PersonnalInformationContract" */'views/personnal-information/contract/index'),
+              children: [
+                {
+                  path: '/',
+                  redirect: '/personnel-information/contract/contract'
+                },
+                {
+                  path: '/personnel-information/contract/contract',
+                  name: '劳动合同管理',
+                  meta: { title: '劳动合同管理' },
+                  component: () => import(/* webpackChunkName: "ContractContract" */'views/personnal-information/contract/contract')
+                },
+                {
+                  path: '/personnel-information/contract/employment',
+                  name: '就业协议管理',
+                  meta: { title: '就业协议管理' },
+                  component: () => import(/* webpackChunkName: "ContractEmployment" */'views/personnal-information/contract/employment')
+                },
+                {
+                  path: '/personnel-information/contract/contract-edit/:contractId/:type',
+                  name: '合同编辑',
+                  meta: { title: '合同编辑' },
+                  component: () => import(/* webpackChunkName: "ContractEdit" */'views/personnal-information/contract/contract-edit')
+                },
+                {
+                  path: '/personnel-information/contract/contract-check/:contractId',
+                  name: '合同详情',
+                  meta: { title: '合同详情' },
+                  component: () => import(/* webpackChunkName: "ContractCheck" */'views/personnal-information/contract/contract-check')
+                },
+                {
+                  path: '/personnel-information/contract/contract-put/:contractId/:userId/:cancelTime/:contractSub',
+                  name: '解除合同打印',
+                  meta: { title: '解除合同打印' },
+                  component: () => import(/* webpackChunkName: "ContractPut" */'views/personnal-information/contract/contract-put')
+                }
+              ]
+            },
+            {
+              path: '/personnel-information/security',
+              meta: { title: '社保待遇管理' },
+              component: () => import(/* webpackChunkName: "getSecurityIndex" */'views/personnal-information/security'),
+              children: [
+                {
+                  path: '/',
+                  redirect: '/personnel-information/security'
+                },
+                {
+                  path: '/personnel-information/security/securityTransfer',
+                  name: '社保转移',
+                  meta: { title: '社保转移' },
+                  component: () => import(/* webpackChunkName: "getSecurityTransfer" */'views/personnal-information/security/securityTransfer')
+                },
+                {
+                  path: '/personnel-information/security/securityRetiree',
+                  name: '退休管理',
+                  meta: { title: '退休管理' },
+                  component: () => import(/* webpackChunkName: "getSecurityRetiree" */'views/personnal-information/security/securityRetiree')
+                },
+                {
+                  path: '/personnel-information/security/stationedHospital',
+                  name: '驻外定点医院',
+                  meta: { title: '驻外定点医院' },
+                  component: () => import(/* webpackChunkName: "getStationedHospital" */'views/personnal-information/security/stationedHospital')
+                },
+                {
+                  path: '/personnel-information/security/medicalReimbursement',
+                  name: '医疗报销人员',
+                  meta: { title: '医疗报销人员' },
+                  component: () => import(/* webpackChunkName: "getMedicalReimbursement" */'views/personnal-information/security/medicalReimbursement')
+                },
+                {
+                  path: '/personnel-information/security/birthTreatment',
+                  name: '生育待遇',
+                  meta: { title: '生育待遇' },
+                  component: () => import(/* webpackChunkName: "getBirthTreatment" */'views/personnal-information/security/birthTreatment')
+                },
+                {
+                  path: '/personnel-information/security/occupationalInjury',
+                  name: '工伤待遇',
+                  meta: { title: '工伤待遇' },
+                  component: () => import(/* webpackChunkName: "getOccupationalInjury" */'views/personnal-information/security/occupationalInjury')
+                },
+                {
+                  path: '/personnel-information/security/unemploymentTreatment',
+                  name: '失业待遇',
+                  meta: { title: '失业待遇' },
+                  component: () => import(/* webpackChunkName: "getUnemploymentTreatment" */'views/personnal-information/security/unemploymentTreatment')
+                }
+
+              ]
+            },
+            /* 公积金 */
+            {
+              path: '/personnel-information/providentFund',
+              meta: { title: '社保公积金管理' },
+              component: () => import(/* webpackChunkName: "ProvidentFund" */'views/personnal-information/providentFund'),
+              children: [
+                {
+                  path: '/',
+                  redirect: '/personnel-information/providentFund'
+                },
+                {
+                  path: '/personnel-information/providentFund/waitProviden',
+                  name: '待办理',
+                  meta: { title: '待办理' },
+                  component: () => import(/* webpackChunkName: "WaitProviden" */'views/personnal-information/providentFund/waitProviden')
+                },
+                {
+                  path: '/personnel-information/providentFund/stopProviden',
+                  name: '待停缴',
+                  meta: { title: '待停缴' },
+                  component: () => import(/* webpackChunkName: "StopProviden" */'views/personnal-information/providentFund/stopProviden')
+                },
+                {
+                  path: '/personnel-information/providentFund/allProviden',
+                  name: '全部公积金',
+                  meta: { title: '全部' },
+                  component: () => import(/* webpackChunkName: "AllProviden" */'views/personnal-information/providentFund/allProviden')
+                }
+              ]
+            },
+            {
+              path: '/personnel-information/providentFund/handleProviden/:Id/:type',
+              name: '公积金办理',
+              meta: { title: '公积金办理' },
+              component: () => import(/* webpackChunkName: "HandleProviden" */'views/personnal-information/providentFund/handleProviden')
+            },
+            {
+              path: '/personnel-information/providentFund/recordSocial/:Id',
+              name: '公积金缴纳记录',
+              meta: { title: '公积金缴纳记录' },
+              component: () => import(/* webpackChunkName: "ProvidentFundRecordSocial" */'views/personnal-information/providentFund/recordSocial')
+            },
+            {
+              path: '/personnel-information/providentFund/standard',
+              name: '公积金标准调整',
+              meta: { title: '标准调整' },
+              component: () => import(/* webpackChunkName: "ProvidentFundStandard" */'views/personnal-information/providentFund/standard')
+            },
+            {
+              path: '/personnel-information/social',
+              meta: { title: '社保参保管理' },
+              component: () => import(/* webpackChunkName: "PersonnalSocial" */'views/personnal-information/social'),
+              children: [
+                {
+                  path: '/',
+                  redirect: '/personnel-information/social'
+                },
+                {
+                  path: '/personnel-information/social/waitSocial',
+                  name: 'WaitSocial',
+                  meta: { title: '待参保' },
+                  component: () => import(/* webpackChunkName: "WaitSocial" */'views/personnal-information/social/waitSocial')
+                },
+                {
+                  path: '/personnel-information/social/stopSocial',
+                  name: '待停保',
+                  meta: { title: '待停保' },
+                  component: () => import(/* webpackChunkName: "stopSocial" */'views/personnal-information/social/stopSocial')
+                },
+                {
+                  path: '/personnel-information/social/allSocial',
+                  name: '全部社保',
+                  meta: { title: '全部' },
+                  component: () => import(/* webpackChunkName: "allSocial" */'views/personnal-information/social/allSocial')
+                }
+              ]
+            },
+            {
+              path: '/personnel-information/social/social-check/:Id/:type',
+              name: '社保参保查看',
+              meta: { title: '社保参保查看' },
+              component: () => import(/* webpackChunkName: "checkSocial" */'views/personnal-information/social/social-check')
+            },
+            {
+              path: '/personnel-information/social/recordSocial/:Id',
+              name: '缴费记录',
+              meta: { title: '缴费记录' },
+              component: () => import(/* webpackChunkName: "recordSocial" */'views/personnal-information/social/recordSocial')
+            },
+            {
+              path: '/personnel-information/social/standard',
+              name: '社保标准调整',
+              meta: { title: '标准调整' },
+              component: () => import(/* webpackChunkName: "Standard" */'views/personnal-information/social/standard')
+            },
+            {
+              path: '/verify',
+              // name: '我的审核',
+              meta: { title: '我的审核' },
+              component: () => import(/* webpackChunkName: "Verify" */'views/verify/index'),
+              children: [
+                {
+                  path: '/',
+                  redirect: '/verify/entry'
+                },
+                {
+                  path: '/verify/examine',
+                  meta: { title: '已审核列表' },
+                  component: () => import(/* webpackChunkName: "SolveOffer" */'views/verify/entry/solveOffer'),
+                  children: [
+                    {
+                      path: '/verify/examine/offer',
+                      meta: { title: '发offer' },
+                      name: 'OfferSend',
+                      component: () => import(/* webpackChunkName: "OfferSend" */'views/verify/entry/entry-box/sendOffer')
+                    }
+                  ]
+                },
+                {
+                  path: '/verify/entry',
+                  meta: { title: '入职审核' },
+                  component: () => import(/* webpackChunkName: "VerifyEntry" */'views/verify/entry/index'),
+                  children: [
+                    {
+                      path: '/',
+                      redirect: '/verify/entry/owner'
+                    },
+                    {
+                      path: '/verify/entry/owner',
+                      meta: { title: '我发起的' },
+                      name: 'VerifyEntryOwner',
+                      component: () => import(/* webpackChunkName: "VerifyEntryOwner" */'views/verify/entry/entry-box/owner')
+                    },
+                    {
+                      path: '/verify/entry/employment',
+                      meta: { title: '录用' },
+                      name: 'VerifyEntryEmployment',
+                      component: () => import(/* webpackChunkName: "VerifyEntryEmployment" */'views/verify/entry/entry-box/employment')
+                    },
+                    {
+                      path: '/verify/entry/recheck',
+                      meta: { title: '录用复核' },
+                      name: 'VerifyEntryRecheck',
+                      component: () => import(/* webpackChunkName: "VerifyEntryRecheck" */'views/verify/entry/entry-box/recheck')
+                    },
+                    {
+                      path: '/verify/entry/entry',
+                      meta: { title: '入职' },
+                      name: 'VerifyEntryEntry',
+                      component: () => import(/* webpackChunkName: "VerifyEntryEntry" */'views/verify/entry/entry-box/entry')
+                    },
+                    {
+                      path: '/verify/entry/review-entry',
+                      meta: { title: '入职复核' },
+                      name: 'VerifyEntryReviewEntry',
+                      component: () => import(/* webpackChunkName: "VerifyEntryReviewEntry" */'views/verify/entry/entry-box/review-entry')
+                    }
+                  ]
+                },
+                {
+                  path: '/common-verify/entry/entry-detail/:acceptId/:come',
+                  name: 'VerifyOwnerDetail',
+                  meta: { title: '入职审核详情' },
+                  component: () => import(/* webpackChunkName: "VerifyOwnerDetail" */'views/verify/entry/entry-box/owner-detail')
+                },
+                {
+                  path: '/verify/entry/entry-check',
+                  // name: 'VerifyEntryCheck',
+                  meta: { title: '审批详情' },
+                  component: () => import(/* webpackChunkName: "VerifyEntryCheck" */'views/verify/entry/entry-check/index'),
+                  children: [
+                    {
+                      path: '/verify/entry/entry-check/approve/:employeeId/:exmineId/:exmineUserId/:exminePassKey/:exmineTaskId/:exminePid/:type/:backReason',
+                      meta: { title: '审批详情审批意见' },
+                      name: 'VerifyEntryCheckApprove',
+                      component: () => import(/* webpackChunkName: "VerifyEntryCheckApprove" */'views/verify/entry/entry-check/approve')
+                    },
+                    {
+                      path: '/verify/entry/entry-check/check-form/:employeeId/:exmineId/:exmineUserId/:exminePassKey/:exmineTaskId/:exminePid/:type/:backReason',
+                      meta: { title: '审批详情登记表信息' },
+                      name: 'VerifyEntryCheckForm',
+                      component: () => import(/* webpackChunkName: "VerifyEntryCheckForm" */'views/verify/entry/entry-check/check-form')
+                    }
+                  ]
+                },
+                {
+                  path: '/verify/entry/entry-option/:employeeId/:exmineId/:exmineUserId/:exminePassKey/:exmineTaskId/:exminePid/:type/:backReason',
+                  name: 'VerifyEntryOption',
+                  meta: { title: '入职审批录用审核' },
+                  component: () => import(/* webpackChunkName: "VerifyEntryOption" */'views/verify/entry/entry-option/index')
+                },
+                {
+                  path: 'verify/exmine',
+                  name: 'EntryExmine',
+                  meta: { title: '入职审批' },
+                  component: () => import(/* webpackChunkName: "EntryExmine" */'views/entry-view/entry-exmine')
+                },
+                {
+                  path: '/come-verify/entry/entry-detail',
+                  meta: { title: '审批详情登记表信息' },
+                  component: () => import(/* webpackChunkName: "VerifyEntryDetail" */'views/verify/entry/entry-detail/index'),
+                  children: [
+                    {
+                      // path: '/come-verify/entry-detail/labor',
+                      path: '/come-verify/entry-detail/labor/:employeeId/:exmineId/:exmineUserId/:exminePassKey/:exmineTaskId/:exminePid/:type/:come/:actId',
+                      name: 'VerifyEntryDetailLabor',
+                      meta: { title: '入职审批劳动人事信息' },
+                      component: () => import(/* webpackChunkName: "VerifyEntryDetailLabor" */'views/verify/entry/entry-detail/labor')
+                    },
+                    {
+                      // path: '/come-verfiy/entry/entry-detail/personnal',
+                      path: '/come-verfiy/entry/entry-detail/personnal/:employeeId/:exmineId/:exmineUserId/:exminePassKey/:exmineTaskId/:exminePid/:type/:come/:actId',
+                      name: 'VerifyEntryDetailPersonnal',
+                      meta: { title: '入职审批个人档案' },
+                      component: () => import(/* webpackChunkName: "VerifyEntryDetailPersonnal" */'views/verify/entry/entry-detail/personnal')
+                    }
+                  ]
+                },
+                {
+                  path: '/come-verify/entry/entry-finCheck',
+                  component: () => import(/* webpackChunkName: "VerifyFnEntry" */'views/verify/entry/entry-finCheck/index'),
+                  meta: { title: '入职审核详情' },
+                  children: [
+                    {
+                      path: '/come-verify/verify/entry/entry-finCheck/labor/:employeeId/:exmineId/:exmineUserId/:exminePassKey/:exmineTaskId/:exminePid/:type/:come',
+                      component: () => import(/* webpackChunkName: "VerifyEntryLabor" */'views/verify/entry/entry-finCheck/labor'),
+                      name: 'VerifyEntryLabor',
+                      meta: { title: '入职审核劳动人事信息详情' }
+                    },
+                    {
+                      path: '/come-verify/verify/entry/entry-finCheck/personnal/:employeeId/:exmineId/:exmineUserId/:exminePassKey/:exmineTaskId/:exminePid/:type/:come',
+                      component: () => import(/* webpackChunkName: "VerifyEntryPersonnal" */'views/verify/entry/entry-finCheck/personnal'),
+                      name: 'VerifyEntryPersonnal',
+                      meta: { title: '入职审核个人档案详情' }
+                    }
+                  ]
+                },
+                {
+                  path: '/verify/leave/leaveMsg',
+                  name: '离职审核',
+                  meta: { title: '离职审核' },
+                  component: () => import(/* webpackChunkName: "VerifyLeave" */'views/verify/leave-msg/index')
+                },
+                {
+                  path: '/verify/transfer/transferMsg',
+                  name: '调动审核',
+                  meta: { title: '调动审核' },
+                  component: () => import(/* webpackChunkName: "VerifyTransfer" */'views/verify/transfer-msg/index')
+                },
+                {
+                  path: '/verify/job',
+                  // name: '干部审核',
+                  meta: { title: '干部审核' },
+                  component: () => import(/* webpackChunkName: "VerifyJob" */'views/verify/job/index'),
+                  children: [
+                    {
+                      path: '/',
+                      redirect: '/verify/job/addVerifyJob'
+                    },
+                    {
+                      path: '/verify/job/addVerifyJob',
+                      name: '新增干部审核',
+                      meta: { title: '新增干部审核' },
+                      component: () => import(/* webpackChunkName: "VerifyJobAdd" */'views/verify/job/job-add')
+                    },
+                    {
+                      path: '/verify/job/moveVerifyJob',
+                      name: '免除干部审核',
+                      meta: { title: '免除干部审核' },
+                      component: () => import(/* webpackChunkName: "VerifyJobMove" */'views/verify/job/job-move')
+                    }
+                  ]
+                },
+                {
+                  path: '/verify/job/checkVerifyJob/:jobId/:employeeId/:exmineId/:exmineUserId/:exminePassKey/:exmineTaskId/:exminePid',
+                  name: '新增干部详情审核',
+                  meta: { title: '新增干部详情审核' },
+                  component: () => import(/* webpackChunkName: "VerifyJobAddCheck" */'views/verify/job/job-add-check')
+                },
+                {
+                  path: '/verify/job/checkMoveVerify/:jobId/:employeeId/:exmineId/:exmineUserId/:exminePassKey/:exmineTaskId/:exminePid',
+                  name: '免除干部详情审核',
+                  meta: { title: '免除干部详情审核' },
+                  component: () => import(/* webpackChunkName: "VerifyJobMoveCheck" */'views/verify/job/job-move-check')
+                },
+                {
+                  path: '/verify/contract',
+                  // name: '劳动关系',
+                  meta: { title: '劳动关系' },
+                  component: () => import(/* webpackChunkName: "VerifyContract" */'views/verify/contract/index'),
+                  children: [
+                    {
+                      path: '/',
+                      redirect: '/verify/contract/changeContract'
+                    },
+                    {
+                      path: '/verify/contract/changeContract',
+                      name: '合同变更',
+                      meta: { title: '合同变更' },
+                      component: () => import(/* webpackChunkName: "VerifyContractChange" */'views/verify/contract/change')
+                    },
+                    {
+                      path: '/verify/contract/moveContract',
+                      name: '合同解除',
+                      meta: { title: '合同解除' },
+                      component: () => import(/* webpackChunkName: "VerifyContractMove" */'views/verify/contract/move')
+                    },
+                    {
+                      path: '/verify/contract/cancelContract',
+                      name: '作废',
+                      meta: { title: '作废' },
+                      component: () => import(/* webpackChunkName: "VerifyContractCancel" */'views/verify/contract/cancel')
+                    }
+                  ]
+                },
+                {
+                  path: '/verify/correct',
+                  meta: { title: '劳动关系' },
+                  component: () => import(/* webpackChunkName: "VerifyCorrect" */'views/verify/correct/index'),
+                  children: [
+                    {
+                      path: '/',
+                      redirect: '/verify/correct/started'
+                    },
+                    {
+                      path: '/verify/correct/started',
+                      name: '我发起的',
+                      meta: { title: '我发起的' },
+                      component: () => import(/* webpackChunkName: "VerifyCorrectStarted" */'views/verify/correct/started')
+                    },
+                    {
+                      path: '/verify/correct/personalAudit',
+                      name: '人事负责人审核',
+                      meta: { title: '人事负责人审核' },
+                      component: () => import(/* webpackChunkName: "VerifyCorrectPersonalAudit" */'views/verify/correct/personalAudit')
+                    },
+                    {
+                      path: '/verify/correct/groupAudit',
+                      name: '集团总部审核',
+                      meta: { title: '集团总部审核' },
+                      component: () => import(/* webpackChunkName: "VerifyCorrectGroupAudit" */'views/verify/correct/groupAudit')
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              path: '/temporary',
+              // name: '临时报表',
+              meta: { title: '报表中心' },
+              component: () => import(/* webpackChunkName: "Temporary" */'views/temporary/index'),
+              children: [
+                {
+                  path: '/',
+                  redirect: '/temporary/report-manage'
+                },
+                {
+                  path: '/temporary/report-manage',
+                  name: '报表管理',
+                  meta: { title: '报表管理' },
+                  component: () => import(/* webpackChunkName: "TemporaryManger" */'views/temporary/report-manage')
+                },
+                {
+                  path: '/temporary/report-manage2',
+                  name: '报表管理（辖属公司）',
+                  meta: { title: '报表管理（辖属公司）' },
+                  component: () => import(/* webpackChunkName: "TemporaryManger2" */'views/temporary/report-manage2')
+                },
+                {
+                  path: '/temporary/report-add',
+                  name: '报表中心新增',
+                  meta: { title: '报表中心新增' },
+                  component: () => import(/* webpackChunkName: "TemporaryAdd" */'views/temporary/report-add')
+                },
+                {
+                  path: '/temporary/report-edit',
+                  name: '报表中心编辑',
+                  meta: { title: '报表中心编辑' },
+                  component: () => import(/* webpackChunkName: "TemporaryEdit" */'views/temporary/report-edit')
+                },
+                {
+                  path: '/temporary/report-detail/:id/:name/:endTime/:tableName/:userType',
+                  name: '报表中心详情',
+                  meta: { title: '报表中心详情' },
+                  component: () => import(/* webpackChunkName: "TemporaryDetail" */'views/temporary/report-detail')
+                },
+                {
+                  path: '/temporary/report-report/:id/:name/:endTime/:tableName',
+                  name: '报表中心上报',
+                  meta: { title: '报表中心上报' },
+                  component: () => import(/* webpackChunkName: "TemporaryReport" */'views/temporary/report-report')
+                }
+              ]
+            },
+            {
+              path: '/market-verify',
+              meta: { title: '营销人员审核' },
+              // name: MarketVerify,
+              component: () => import(/* webpackChunkName: "MarketVerify" */'views/market-verify/index'),
+              children: [
+                {
+                  path: '/',
+                  redirect: '/market-verify/entry'
+                },
+                {
+                  path: '/market-verify/entry',
+                  meta: { title: '入职审核' },
+                  // name: MarketVerifyEntry,
+                  component: () => import(/* webpackChunkName: "MarketVerifyEntry" */'views/market-verify/entry/index'),
+                  children: [
+                    {
+                      path: '/',
+                      redirect: '/market-verify/entry/owner'
+                    },
+                    {
+                      path: '/market-verify/entry/owner',
+                      component: () => import(/* webpackChunkName: "MarketVerifyEntryOwner" */'views/market-verify/entry/owner'),
+                      meta: { title: '我发起的' },
+                      name: 'MarketVerifyEntryOwner'
+                    },
+                    {
+                      path: '/market-verify/entry/entry',
+                      component: () => import(/* webpackChunkName: "MarketVerifyEntryEntry" */'views/market-verify/entry/entry'),
+                      meta: { title: '入职审核' },
+                      name: 'MarketVerifyEntryEntry'
+                    },
+                    {
+                      path: '/market-verify/entry/headquarters',
+                      component: () => import(/* webpackChunkName: "MarketVerifyEntryHeadquarters" */'views/market-verify/entry/headquarters'),
+                      meta: { title: '总部审核' },
+                      name: 'MarketVerifyEntryHeadquarters'
+                    }
+                  ]
+                },
+                {
+                  path: '/market-verify/entry/add',
+                  component: () => import(/* webpackChunkName: "MarketEntryAdd" */'views/entry-view/market-entry-add'),
+                  name: 'MarketEntryAdd',
+                  meta: { title: '营销人员入职新增' }
+                },
+                {
+                  path: '/market-verify/entry/review',
+                  component: () => import(/* webpackChunkName: "MarketEntryReview" */'views/entry-view/market-entry-review'),
+                  name: 'MarketEntryReview',
+                  meta: { title: '营销人员入职重新审核' }
+                },
+                {
+                  path: '/market-verify/entry/exmine',
+                  component: () => import(/* webpackChunkName: "MarketEntryExmine" */'views/entry-view/market-entry-exmine'),
+                  name: 'MarketEntryExmine',
+                  meta: { title: '营销人员入职审核' }
+                },
+                {
+                  path: '/market-verify/contract',
+                  // name: '劳动关系',
+                  meta: { title: '营销劳动审核' },
+                  component: () => import(/* webpackChunkName: "MarketVerifyContract" */'views/market-verify/contract/index'),
+                  children: [
+                    {
+                      path: '/',
+                      redirect: '/market-verify/contract/change'
+                    },
+                    {
+                      path: '/market-verify/contract/change',
+                      name: '营销合同变更',
+                      meta: { title: '营销合同变更' },
+                      component: () => import(/* webpackChunkName: "MarketVerifyContractChange" */'views/market-verify/contract/change')
+                    },
+                    {
+                      path: '/market-verify/contract/move',
+                      name: '营销合同解除',
+                      meta: { title: '营销合同解除' },
+                      component: () => import(/* webpackChunkName: "MarketVerifyContractMove" */'views/market-verify/contract/move')
+                    },
+                    {
+                      path: '/market-verify/contract/cancel',
+                      name: '营销合同作废',
+                      meta: { title: '营销合同作废' },
+                      component: () => import(/* webpackChunkName: "MarketVerifyContractCancel" */'views/market-verify/contract/cancel')
+                    }
+                  ]
+                },
+                {
+                  path: '/market-verify/correct',
+                  meta: { title: '更正审核' },
+                  component: () => import(/* webpackChunkName: "marketVerifyCorrect" */'views/market-verify/correct/index'),
+                  children: [
+                    {
+                      path: '/',
+                      redirect: '/market-verify/correct/started'
+                    },
+                    {
+                      path: '/market-verify/correct/started',
+                      name: '我发起的',
+                      meta: { title: '我发起的' },
+                      component: () => import(/* webpackChunkName: "marketVerifyCorrectStarted" */'views/market-verify/correct/started')
+                    },
+                    {
+                      path: '/market-verify/correct/personal',
+                      name: '人事负责人审核',
+                      meta: { title: '人事负责人审核' },
+                      component: () => import(/* webpackChunkName: "marketVerifyCorrectPersonal" */'views/market-verify/correct/personal')
+                    },
+                    {
+                      path: '/market-verify/correct/group',
+                      name: '集团总部审核',
+                      meta: { title: '集团总部审核' },
+                      component: () => import(/* webpackChunkName: "marketVerifyCorrectGroup" */'views/market-verify/correct/group')
+                    }
+                  ]
+                },
+                /* 营销干部审核 */
+                {
+                  path: '/market-verify/job',
+                  meta: { title: '营销干部审核' },
+                  component: () => import(/* webpackChunkName: "MarketVerifyJob" */'views/market-verify/job/index'),
+                  children: [
+                    {
+                      path: '/',
+                      redirect: '/market-verify/job/addVerifyJob'
+                    },
+                    {
+                      path: '/market-verify/job/addVerifyJob',
+                      name: '营销新增干部审核',
+                      meta: { title: '营销新增干部审核' },
+                      component: () => import(/* webpackChunkName: "MarketVerifyJobAdd" */'views/market-verify/job/jobMarket-add')
+                    },
+                    {
+                      path: '/market-verify/job/moveVerifyJob',
+                      name: '营销免除干部审核',
+                      meta: { title: '营销免除干部审核' },
+                      component: () => import(/* webpackChunkName: "MarketVerifyJobMove" */'views/market-verify/job/jobMarket-move')
+                    }
+                  ]
+                },
+                {
+                  path: '/market-verify/job/checkVerifyJob/:jobId/:employeeId/:exmineId/:exmineUserId/:exminePassKey/:exmineTaskId/:exminePid',
+                  name: '营销新增干部详情审核',
+                  meta: { title: '营销新增干部详情审核' },
+                  component: () => import(/* webpackChunkName: "MarketVerifyJobAddCheck" */'views/market-verify/job/jobMarket-add-check')
+                },
+                {
+                  path: '/market-verify/job/checkMoveVerify/:jobId/:employeeId/:exmineId/:exmineUserId/:exminePassKey/:exmineTaskId/:exminePid',
+                  name: '营销免除干部详情审核',
+                  meta: { title: '营销免除干部详情审核' },
+                  component: () => import(/* webpackChunkName: "MarketVerifyJobMoveCheck" */'views/market-verify/job/jobMarket-move-check')
+                },
+                {
+                  path: '/market-verify/leave',
+                  meta: { title: '离职审核' },
+                  // name: 'MarketVerifyLeave',
+                  component: () => import(/* webpackChunkName: "MarketVerifyLeave" */'views/market-verify/leave/index'),
+                  children: [
+                    {
+                      path: '/',
+                      redirect: '/market-verify/leave/owner'
+                    },
+                    {
+                      path: '/market-verify/leave/owner',
+                      meta: { title: '我发起的' },
+                      name: 'MarketVerifyLeaveOwner',
+                      component: () => import(/* webpackChunkName: "MarketVerifyLeaveOwner" */'views/market-verify/leave/owner')
+                    },
+                    {
+                      path: '/market-verify/leave/market-ceo',
+                      meta: { title: '市场总部CEO' },
+                      name: 'MarketVerifyMarketCEO',
+                      component: () => import(/* webpackChunkName: "MarketVerifyMarketCEO" */'views/market-verify/leave/market-ceo')
+                    },
+                    {
+                      path: '/market-verify/leave/market-sure',
+                      meta: { title: '总部确认' },
+                      name: 'MarketVerifyMarketSure',
+                      component: () => import(/* webpackChunkName: "MarketVerifyMarketSure" */'views/market-verify/leave/market-sure')
+                    }
+                  ]
+                },
+                {
+                  path: '/market-verify/transfer',
+                  meta: { title: '调动审核' },
+                  // name: 'MarketVerifyTransfer',
+                  component: () => import(/* webpackChunkName: "MarketVerifyTransfer" */'views/market-verify/transfer/index'),
+                  children: [
+                    {
+                      path: '/',
+                      redirect: '/market-verify/transfer/come-in'
+                    },
+                    {
+                      path: '/market-verify/transfer/come-in',
+                      meta: { title: '市场总部间' },
+                      // name: 'MarketVerifyTransferComeIn',
+                      component: () => import(/* webpackChunkName: "MarketVerifyTransferComeIn" */'views/market-verify/transfer/come-in/index'),
+                      children: [
+                        {
+                          path: '/',
+                          redirect: '/market-verify/transfer/come-in/owner'
+                        },
+                        {
+                          path: '/market-verify/transfer/come-in/owner',
+                          meta: { title: '我发起的' },
+                          name: 'MarketVerifyTransferComeInOwner',
+                          component: () => import(/* webpackChunkName: "MarketVerifyTransferComeInOwner" */'views/market-verify/transfer/come-in/owner')
+                        },
+                        {
+                          path: '/market-verify/transfer/come-in/transfer-ceo',
+                          meta: { title: '总部CEO' },
+                          name: 'MarketVerifyTransferComeInTransferCeo',
+                          component: () => import(/* webpackChunkName: "MarketVerifyTransferComeInTransferCeo" */'views/market-verify/transfer/come-in/transfer-ceo')
+                        },
+                        {
+                          path: '/market-verify/transfer/come-in/transfer-newHr',
+                          meta: { title: '新部门人事审核' },
+                          name: 'MarketVerifyTransferComeInTransferNewHr',
+                          component: () => import(/* webpackChunkName: "MarketVerifyTransferComeInTransferNewHr" */'views/market-verify/transfer/come-in/transfer-newHr')
+                        },
+                        {
+                          path: '/market-verify/transfer/come-in/transfer-newCeo',
+                          meta: { title: '新部门CEO审核' },
+                          name: 'MarketVerifyTransferComeInTransferNewCeo',
+                          component: () => import(/* webpackChunkName: "MarketVerifyTransferComeInTransferNewCeo" */'views/market-verify/transfer/come-in/transfer-newCeo')
+                        },
+                        {
+                          path: '/market-verify/transfer/come-in/transfer-sure',
+                          meta: { title: '总部确认' },
+                          name: 'MarketVerifyTransferComeInTransferSure',
+                          component: () => import(/* webpackChunkName: "MarketVerifyTransferComeInTransferSure" */'views/market-verify/transfer/come-in/transfer-sure')
+                        }
+                      ]
+                    },
+                    {
+                      path: '/market-verify/transfer/come-out',
+                      meta: { title: '市场总部-外部' },
+                      // name: 'MarketVerifyTransferComeOut',
+                      component: () => import(/* webpackChunkName: "MarketVerifyTransferComeOut" */'views/market-verify/transfer/come-out/index'),
+                      children: [
+                        {
+                          path: '/',
+                          redirect: '/market-verify/transfer/come-out/owner'
+                        },
+                        {
+                          path: '/market-verify/transfer/come-out/owner',
+                          meta: { title: '我发起的' },
+                          component: () => import(/* webpackChunkName: "MarketVerifyTransferComeOutOwner" */'views/market-verify/transfer/come-out/owner'),
+                          name: 'MarketVerifyTransferComeOutOwner'
+                        },
+                        {
+                          path: '/market-verify/transfer/come-out/come-outHr',
+                          meta: { title: '人事接收' },
+                          component: () => import(/* webpackChunkName: "MarketVerifyTransferComeOutOutHr" */'views/market-verify/transfer/come-out/come-outHr'),
+                          name: 'MarketVerifyTransferComeOutOutHr'
+                        },
+                        {
+                          path: '/market-verify/transfer/come-out/come-outCeo',
+                          meta: { title: '市场总部CEO' },
+                          component: () => import(/* webpackChunkName: "MarketVerifyTransferComeOutOutCEO" */'views/market-verify/transfer/come-out/come-outCeo'),
+                          name: 'MarketVerifyTransferComeOutOutCEO'
+                        },
+                        {
+                          path: '/market-verify/transfer/come-out/come-outSure',
+                          meta: { title: '集团总部' },
+                          component: () => import(/* webpackChunkName: "MarketVerifyTransferComeOutOutSure" */'views/market-verify/transfer/come-out/come-outSure'),
+                          name: 'MarketVerifyTransferComeOutOutSure'
+                        }
+                      ]
+                    },
+                    {
+                      path: '/market-verify/transfer/head-sure',
+                      meta: { title: '外部-市场总部' },
+                      // name: 'MarketVerifyTransferHeadSure',
+                      component: () => import(/* webpackChunkName: "MarketVerifyTransferHeadSure" */'views/market-verify/transfer/head-sure/index'),
+                      children: [
+                        {
+                          path: '/',
+                          redirect: '/market-verify/transfer/head-sure/owner'
+                        },
+                        {
+                          path: '/market-verify/transfer/head-sure/owner',
+                          meta: { title: '我发起的' },
+                          component: () => import(/* webpackChunkName: "MarketVerifyTransferHeadSureOwner" */'views/market-verify/transfer/head-sure/owner'),
+                          name: 'MarketVerifyTransferHeadSureOwner'
+                        },
+                        {
+                          path: '/market-verify/transfer/head-sure/head-outHr',
+                          meta: { title: '人事接收' },
+                          component: () => import(/* webpackChunkName: "MarketVerifyTransferHeadSureOutHr" */'views/market-verify/transfer/head-sure/head-outHr'),
+                          name: 'MarketVerifyTransferHeadSureOutHr'
+                        },
+                        {
+                          path: '/market-verify/transfer/head-sure/head-outCeo',
+                          meta: { title: '市场总部CEO' },
+                          component: () => import(/* webpackChunkName: "MarketVerifyTransferHeadSureOutCEO" */'views/market-verify/transfer/head-sure/head-outCeo'),
+                          name: 'MarketVerifyTransferHeadSureOutCEO'
+                        },
+                        {
+                          path: '/market-verify/transfer/head-sure/head-outSure',
+                          meta: { title: '集团总部' },
+                          component: () => import(/* webpackChunkName: "MarketVerifyTransferHeadSureOutSure" */'views/market-verify/transfer/head-sure/head-outSure'),
+                          name: 'MarketVerifyTransferHeadSureOutSure'
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              path: '/reportment',
+              // name: '统计分析',
+              meta: { title: '报表中心' },
+              component: () => import(/* webpackChunkName: "ReportMent" */'views/reportment/index'),
+              children: [
+                {
+                  path: '/',
+                  redirect: '/reportment/move'
+                },
+                {
+                  path: '/reportment/custom',
+                  meta: { title: '自定义报表' },
+                  name: 'ReportCustom',
+                  component: () => import(/* webpackChunkName: "ReportCustom" */'views/reportment/custom/index')
+                },
+                {
+                  path: '/reportment/move',
+                  // name: '统计分析异动表',
+                  meta: { title: '报表中心异动表' },
+                  component: () => import(/* webpackChunkName: "ReportMove" */'views/reportment/move/index'),
+                  children: [
+                    {
+                      path: '/',
+                      redirect: '/reportment/move/add'
+                    },
+                    {
+                      path: '/reportment/move/add',
+                      name: 'ReportMoveAdd',
+                      meta: { title: '异动表新增人员' },
+                      component: () => import(/* webpackChunkName: "ReportMoveAdd" */'views/reportment/move/add')
+                    },
+                    {
+                      path: '/reportment/move/reduce',
+                      name: '异动表减少人员',
+                      meta: { title: '异动表减少人员' },
+                      component: () => import(/* webpackChunkName: "ReportMoveReduce" */'views/reportment/move/reduce')
+                    },
+                    {
+                      path: '/reportment/move/move',
+                      name: '异动表内部调动人员',
+                      meta: { title: '异动表内部调动人员' },
+                      component: () => import(/* webpackChunkName: "ReportMoveMove" */'views/reportment/move/move')
+                    }
+                  ]
+                },
+                {
+                  path: '/reportment/main',
+                  name: '报表中心主表',
+                  meta: { title: '报表中心主表' },
+                  component: () => import(/* webpackChunkName: "ReportMain" */'views/reportment/main/index')
+                },
+                {
+                  path: '/reportment/manPower',
+                  name: '报表中心人力数据分析',
+                  meta: { title: '报表中心人力数据分析' },
+                  component: () => import(/* webpackChunkName: "ReportManPower" */'views/reportment/manPower/index')
+                },
+                {
+                  path: '/reportment/monthCompare',
+                  name: '人员变化(环比)',
+                  meta: { title: '人员变化(环比)' },
+                  component: () => import(/* webpackChunkName: "ReporMonthCompare" */'views/reportment/person/index')
+                },
+                {
+                  path: '/reportment/market/main',
+                  name: 'ReportMarketMain',
+                  meta: { title: '主表（人事线）' },
+                  component: () => import(/* webpackChunkName: "ReportManPower" */'views/reportment/market/main')
+                },
+                {
+                  path: '/reportment/market/main/detail/:id/:startTime/:endTime',
+                  name: 'ReportMarketMainDetail',
+                  meta: { title: '主表（人事线）公司详情' },
+                  component: () => import(/* webpackChunkName: "ReportMarketMainDetail" */'views/reportment/market/mainDetail')
+                },
+                {
+                  path: '/reportment/market/move',
+                  // name: 'ReportMarketMove',
+                  meta: { title: '异动表（人事线）' },
+                  component: () => import(/* webpackChunkName: "ReportMarketMove" */'views/reportment/market/move'),
+                  redirect: '/reportment/market/move/add',
+                  // ReportMarketMoveAdd
+                  children: [
+                    {
+                      path: '/reportment/market/move/add',
+                      name: 'ReportMarketMoveAdd',
+                      meta: { title: '新增人员' },
+                      component: () => import(/* webpackChunkName: "ReportMarketMoveAdd" */'views/reportment/market/move/add')
+                    },
+                    {
+                      path: '/reportment/market/move/reduce',
+                      name: 'ReportMarketMoveReduce',
+                      meta: { title: '减少人员' },
+                      component: () => import(/* webpackChunkName: "ReportMarketMoveReduce" */'views/reportment/market/move/reduce')
+                    },
+                    {
+                      path: '/reportment/market/move/move',
+                      name: 'ReportMarketMoveMove',
+                      meta: { title: '内部调动人员' },
+                      component: () => import(/* webpackChunkName: "ReportMarketMoveMove" */'views/reportment/market/move/move')
+                    }
+                  ]
+                },
+                {
+                  path: '/reportment/market/manpower',
+                  name: 'ReportMarketMoveManPower',
+                  meta: { title: '人力数据分析（人事线）' },
+                  component: () => import(/* webpackChunkName: "ReportMarketMoveManPower" */'views/reportment/market/manPower')
+                },
+                {
+                  path: '/reportment/market/system',
+                  name: 'ReportMarketSystem',
+                  meta: { title: '组织架构（人事线）' },
+                  component: () => import(/* webpackChunkName: "ReportMarketSystem" */'views/reportment/market/system')
+                }
+              ]
+            },
+            {
+              path: '/salary',
+              meta: { title: '薪酬管理' },
+              component: () => import(/* webpackChunkName: "Salary" */'views/salary/index'),
+              children: [
+                {
+                  path: '/',
+                  redirect: '/salary/wage'
+                },
+                {
+                  path: '/salary/wage',
+                  name: '工资管理',
+                  meta: { title: '工资管理' },
+                  component: () => import(/* webpackChunkName: "Wage" */'views/salary/wage/index')
+                },
+                {
+                  path: '/salary/annualLeave',
+                  name: '年假管理',
+                  meta: { title: '年假管理' },
+                  component: () => import(/* webpackChunkName: "AnnualLeave" */'views/salary/annualLeave/index')
+                }
+              ]
+            },
+            {
+              path: '/welfare',
+              meta: { title: '福利管理' },
+              component: () => import(/* webpackChunkName: "Welfare" */'views/welfare/index'),
+              children: [
+                {
+                  path: '/',
+                  redirect: '/welfare/giftBag'
+                },
+                {
+                  path: '/welfare/giftBag',
+                  name: '节日礼包',
+                  meta: { title: '节日礼包' },
+                  component: () => import(/* webpackChunkName: "GiftBag" */'views/welfare/giftBag/index')
+                },
+                {
+                  path: '/welfare/giftBag/grantDetail',
+                  meta: { title: '发放详情' },
+                  component: () => import(/* webpackChunkName: "GrantDetail" */'views/welfare/giftBag/grantDetail')
+                },
+                {
+                  path: '/welfare/grant/grantDetail',
+                  meta: { title: '发放详情' },
+                  component: () => import(/* webpackChunkName: "GrantDetail1" */'views/welfare/grant/grantDetail')
+                },
+                {
+                  path: '/welfare/giftBag/reportList',
+                  meta: { title: '上报者名单' },
+                  component: () => import(/* webpackChunkName: "ReportList" */'views/welfare/giftBag/reportList')
+                },
+                {
+                  path: '/welfare/grant',
+                  name: '实物发放',
+                  meta: { title: '实物发放' },
+                  component: () => import(/* webpackChunkName: "Grant" */'views/welfare/grant/index')
+                },
+                {
+                  path: '/welfare/grant/reportList',
+                  meta: { title: '上报者名单' },
+                  component: () => import(/* webpackChunkName: "ReportList1" */'views/welfare/grant/reportList')
+                },
+                {
+                  path: '/welfare/nourishGold',
+                  name: '营养金',
+                  meta: { title: '营养金' },
+                  component: () => import(/* webpackChunkName: "NourishGold" */'views/welfare/nourishGold/nourishGold')
+                },
+                {
+                  path: '/welfare/nourishGold/add',
+                  name: '新增营养金',
+                  meta: { title: '新增营养金' },
+                  component: () => import(/* webpackChunkName: "AddNourishGold" */'views/welfare/nourishGold/addNourishGold')
+                },
+                {
+                  path: '/welfare/studyGold',
+                  name: '助学金',
+                  meta: { title: '助学金' },
+                  component: () => import(/* webpackChunkName: "StudyGold" */'views/welfare/studyGold/studyGold')
+                },
+                {
+                  path: '/welfare/studyGold/add',
+                  meta: { title: '新增助学金' },
+                  name: '新增助学金',
+                  component: () => import(/* webpackChunkName: "AddStudyGold" */'views/welfare/studyGold/addStudyGold')
+                }
+              ]
+            },
+            {
+              path: '/setting',
+              // name: '系统设置',
+              meta: { title: '系统设置' },
+              component: () => import(/* webpackChunkName: "Setting" */'views/setting/index'),
+              children: [
+                {
+                  path: '/',
+                  redirect: '/setting/origin'
+                },
+                {
+                  path: '/setting/origin',
+                  name: 'SettingOrigin',
+                  meta: { title: '组织架构' },
+                  component: () => import(/* webpackChunkName: "SettingOrigin" */'views/setting/origin/index')
+                },
+                {
+                  path: '/setting/test',
+                  name: '测试组织架构',
+                  meta: { title: '测试组织架构' },
+                  component: () => import(/* webpackChunkName: "OriginTest" */'views/setting/origin/test')
+                },
+                {
+                  path: '/setting/role-setting',
+                  name: '角色设置',
+                  meta: { title: '角色设置' },
+                  component: () => import(/* webpackChunkName: "SettingRole" */'views/setting/role-setting/index')
+                },
+                {
+                  path: '/setting/role/add',
+                  name: 'RoleAdd',
+                  meta: { title: '角色新增' },
+                  component: () => import(/* webpackChunkName: "RoleAdd" */'views/setting/role-setting/add')
+                },
+                {
+                  path: '/setting/role/edit',
+                  name: 'RoleEdit',
+                  meta: { title: '角色编辑' },
+                  component: () => import(/* webpackChunkName: "RoleEdit" */'views/setting/role-setting/edit')
+                },
+                {
+                  path: '/setting/number-setting',
+                  name: 'AccountSetting',
+                  meta: { title: '账号管理' },
+                  component: () => import(/* webpackChunkName:"AccountSetting" */ 'views/setting/number-setting/index')
+                },
+                {
+                  path: '/setting/number/add',
+                  name: 'AccountAdd',
+                  meta: { title: '账号新增' },
+                  component: () => import(/* webpackChunkName: "AccountAdd" */'views/setting/number-setting/number-add')
+                },
+                {
+                  path: '/setting/number/edit/:id/:userId/:roleName/:status/:account/:remark',
+                  name: 'AccountEdit',
+                  meta: { title: '账号编辑' },
+                  component: () => import(/* webpackChunkName: "AccountEdit" */'views/setting/number-setting/number-detail')
+                },
+                {
+                  path: '/setting/mail-template',
+                  // name: 'mailTemplate',
+                  meta: { title: '邮件模板' },
+                  component: () => import(/* webpackChunkName: "SettingMail" */'views/setting/mail/index'),
+                  children: [
+                    {
+                      path: '/',
+                      redirect: '/setting/mail-template/interview'
+                    },
+                    {
+                      path: '/setting/mail-template/interview',
+                      name: 'MailInterview',
+                      meta: { title: '面试邀请模板' },
+                      component: () => import(/* webpackChunkName: "MailInterview" */'views/setting/mail/interview')
+                    },
+                    {
+                      path: '/setting/mail-template/offer',
+                      name: 'MailOffer',
+                      meta: { title: 'offer模板' },
+                      component: () => import(/* webpackChunkName: "MailOffer" */'views/setting/mail/offer')
+                    }
+                  ]
+                },
+                {
+                  path: '/setting/mail-template/interview/add',
+                  name: 'InterviewAdd',
+                  meta: { title: '面试邀请模板新增' },
+                  component: () => import(/* webpackChunkName: "InterviewAdd" */'views/setting/mail/interview/add')
+                },
+                {
+                  path: '/setting/mail-template/interview/edit/:id',
+                  name: 'InterviewEdit',
+                  meta: { title: '面试邀请模板编辑' },
+                  component: () => import(/* webpackChunkName: "InterviewEdit" */'views/setting/mail/interview/edit')
+                },
+                {
+                  path: '/setting/mail-template/offer/add',
+                  name: 'OfferAdd',
+                  meta: { title: 'offer模板模板新增' },
+                  component: () => import(/* webpackChunkName: "OfferAdd" */'views/setting/mail/offer/add')
+                },
+                {
+                  path: '/setting/mail-template/offer/edit/:id',
+                  name: 'OfferEdit',
+                  meta: { title: 'offer模板编辑' },
+                  component: () => import(/* webpackChunkName: "OfferEdit" */'views/setting/mail/offer/edit')
+                },
+                {
+                  path: '/setting/wage',
+                  name: 'WageAdministration',
+                  meta: { title: '工资标准' },
+                  component: () => import(/* webpackChunkName: "SettingWage" */'views/setting/wage/index')
+                },
+                {
+                  path: '/setting/custom',
+                  // name: 'SettingCustom',
+                  meta: { title: '自定义设置' },
+                  component: () => import(/* webpackChunkName: "settingcustom" */ 'views/setting/custom/index'),
+                  children: [
+                    {
+                      path: '/',
+                      redirect: '/setting/custom/common'
+                    },
+                    {
+                      path: '/setting/custom/common',
+                      component: () => import(/* webpackChunkName: "customcommon" */ 'views/setting/custom/common'),
+                      meta: { title: '常用字段设置' },
+                      name: 'CustomCommon'
+                    },
+                    {
+                      path: '/setting/custom/wage-series',
+                      component: () => import(/* webpackChunkName: "customwageseries" */ 'views/setting/custom/wage-series'),
+                      meta: { title: '工资系列设置' },
+                      name: 'CustomWageSeries'
+                    },
+                    {
+                      path: '/setting/custom/wage-other',
+                      component: () => import(/* webpackChunkName: "customwageother" */ 'views/setting/custom/wage-other'),
+                      meta: { title: '工资其它构成设置' },
+                      name: 'CustomWageOther'
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+})

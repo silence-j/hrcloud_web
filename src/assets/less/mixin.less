@@ -1,0 +1,12 @@
+//显示多少行多余显示...
+.line-clamp(@line) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: @line;
+    -webkit-box-orient: vertical
+}
+@baseFontSize:37.5;
+.px2rem(@name, @px){
+    @{name}: @px / @baseFontSize * 1rem;
+}

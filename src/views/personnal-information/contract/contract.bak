@@ -1,0 +1,1323 @@
+<template>
+<div class="mt-20">
+  <el-tabs type="border-card" @tab-click="handleClick">
+    <!-- 1待签订 -->
+    <el-tab-pane>
+      <span slot="label">待签订</span>
+      <div class="table-setting-warp">
+        <div class="table-setting-icon el-icon-setting" @click="chooseMsg(1)"></div>
+        <el-table
+          :data="SignedList"
+          border @sort-change="sortChange">
+          <el-table-column
+            label="序号"
+            type="index"
+            width="60">
+          </el-table-column>
+
+          <template v-for="item in fieldList">
+            <template v-if="item.prop == 'status'">
+              <el-table-column
+                label="状态">
+                <template slot-scope="scope">
+                  <div v-if="scope.row.status==10" class="moveBtn">
+                    <el-tooltip placement="top" effect="light">
+                      <div slot="content" style="width: 130px;height: 55px;overflow: auto;">{{scope.row.contractCancelReason}}</div>
+                      <span>{{scope.row.status | filterStatus }}</span>
+                    </el-tooltip>
+                  </div>
+                  <div v-else>
+                    <span>{{scope.row.status | filterStatus }}</span>
+                  </div>
+                </template>
+              </el-table-column>
+            </template>
+            <template v-else-if="item.prop == 'workSchedule'">
+              <el-table-column
+                prop="nature"
+                label="工时制度" sortable>
+                <template slot-scope="scope">
+                  {{scope.row.workSchedule | filterworkStatus}}
+                </template>
+              </el-table-column>
+            </template>
+            <template v-else>
+              <el-table-column
+                :label="item.name"
+                :prop="item.prop" :key="item.name" sortable min-width="120">
+              </el-table-column>
+            </template>
+          </template>
+
+          <el-table-column
+            label="操作"
+            fixed="right"
+            width="240px">
+            <template slot-scope="scope">
+              <div class="operation">
+                <div v-if="scope.row.canOperate === 0">
+                  <span v-show="scope.row.status === 2 && (permission.indexOf('查看')!=-1)" @click="checkContractMsg(scope.row)">查看</span>
+                </div>
+                <div v-else>
+                  <span v-show="scope.row.status === 1 && (permission.indexOf('签订')!=-1)" @click="concludeMsg(scope.row)">签订</span>
+                  <span v-show="scope.row.status === 1 && (permission.indexOf('不签订')!=-1)" @click="UnconcludeMsg(scope.row)">不签订</span>
+                  <span v-show="scope.row.status === 2 && (permission.indexOf('办结')!=-1)" @click="BanjieMsg(scope.row)">办结</span>
+                  <span v-show="scope.row.status === 2 && (permission.indexOf('取消')!=-1)" @click="CancelMsg(scope.row)">取消</span>
+                  <span v-show="scope.row.status === 1 && (permission.indexOf('编辑')!=-1)" @click="editContractMsg(scope.row)">编辑</span>
+                  <span v-show="scope.row.status === 2 && (permission.indexOf('查看')!=-1)" @click="checkContractMsg(scope.row)">查看</span>
+                  <!-- <span v-show="scope.row.status === 1 && (permission.indexOf('异地签')!=-1)" @click="placeSignMsg(scope.row)">异地签</span> -->
+                  <span v-show="permission.indexOf('异地签')!=-1 && (scope.row.status === 1)" @click="placeSignMsg(scope.row)">异地签</span>
+                </div>
+              </div>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
+      <pagination
+        @size-change="SignedhandleSizeChange"
+        @current-change="SignedhandleCurrentChange"
+        :current-page="SignedpageMsg.currentPage"
+        :page-sizes="SignedpageMsg.pageSizes"
+        :page-size="SignedpageMsg.pageSize"
+        :total="SignedpageMsg.total">
+      </pagination>
+    </el-tab-pane>
+
+    <!-- 2待解除 -->
+    <el-tab-pane>
+      <span slot="label">待解除</span>
+      <div class="table-setting-warp">
+        <div class="table-setting-icon el-icon-setting" @click="chooseMsg(2)"></div>
+        <el-table
+          :data="WaitReleaseList"
+          border @sort-change="sortChange">
+          <el-table-column
+            label="序号"
+            type="index"
+            width="60">
+          </el-table-column>
+
+          <template v-for="item in fieldList2">
+            <template v-if="item.prop == 'status'">
+              <el-table-column
+                label="状态" min-width="120">
+                <template slot-scope="scope">
+                  <span>{{scope.row.status | filterStatus }}</span>
+                </template>
+              </el-table-column>
+            </template>
+            <template v-else-if="item.prop == 'workSchedule'">
+              <el-table-column
+                prop="nature"
+                label="工时制度" sortable>
+                <template slot-scope="scope">
+                  {{scope.row.workSchedule | filterworkStatus}}
+                </template>
+              </el-table-column>
+          </template>
+          <template v-else>
+            <el-table-column
+              :label="item.name"
+              :prop="item.prop" :key="item.name" sortable min-width="120">
+            </el-table-column>
+          </template>
+          </template>
+
+          <el-table-column
+            label="操作"
+            fixed="right"
+            width="240px">
+            <template slot-scope="scope">
+              <div class="operation">
+                <div v-if="scope.row.canOperate === 0">
+                  <span @click="checkContractMsg(scope.row)" v-show="(permission.indexOf('查看'))!=-1">查看</span>
+                </div>
+                <div v-else>
+                  <span v-show="(scope.row.status === 3 || scope.row.status === 4) && (permission.indexOf('解除'))!=-1" @click="RemoveMsg(scope.row)">解除</span>
+                  <span @click="checkContractMsg(scope.row)" v-show="(permission.indexOf('查看'))!=-1">查看</span>
+                </div>
+              </div>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
+      <pagination
+        @size-change="ReleasehandleSizeChange"
+        @current-change="ReleasehandleCurrentChange"
+        :current-page="ReleasepageMsg.currentPage"
+        :page-sizes="ReleasepageMsg.pageSizes"
+        :page-size="ReleasepageMsg.pageSize"
+        :total="ReleasepageMsg.total">
+      </pagination>
+
+    </el-tab-pane>
+
+    <!-- 3待续签 -->
+    <el-tab-pane>
+      <span slot="label">待续签</span>
+      <div class="table-setting-warp">
+        <div class="table-setting-icon el-icon-setting" @click="chooseMsg(3)"></div>
+        <el-table
+          :data="ContractSelectList"
+          border @sort-change="sortChange">
+          <el-table-column
+            label="序号"
+            type="index"
+            width="60">
+          </el-table-column>
+
+          <template v-for="item in fieldList3">
+            <template v-if="item.prop == 'status'">
+              <el-table-column
+                label="状态" min-width="120">
+                <template slot-scope="scope">
+                  <span>{{scope.row.status | filterStatus }}</span>
+                </template>
+              </el-table-column>
+            </template>
+            <template v-else-if="item.prop == 'workSchedule'">
+              <el-table-column
+                prop="nature"
+                label="工时制度" sortable>
+                <template slot-scope="scope">
+                  {{scope.row.workSchedule | filterworkStatus}}
+                </template>
+              </el-table-column>
+            </template>
+            <template v-else>
+              <el-table-column
+                :label="item.name"
+                :prop="item.prop" :key="item.name" sortable min-width="120">
+              </el-table-column>
+            </template>
+          </template>
+
+          <el-table-column
+            label="操作"
+            fixed="right"
+            width="240px">
+            <template slot-scope="scope">
+              <div class="operation">
+                <div v-if="scope.row.canOperate === 0">
+                  <span v-show="(permission.indexOf('查看'))!=-1" @click="checkContractMsg(scope.row)" >查看</span>
+                </div>
+                <div v-else>
+                  <span v-show="(scope.row.status === 3 || scope.row.status === 4) && (permission.indexOf('续签'))!=-1" @click="RenewMsg(scope.row)">续签</span>
+                  <span v-show="(permission.indexOf('查看'))!=-1" @click="checkContractMsg(scope.row)" >查看</span>
+                </div>
+              </div>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
+      <pagination
+        @size-change="SelecthandleSizeChange"
+        @current-change="SelecthandleCurrentChange"
+        :current-page="SelectpageMsg.currentPage"
+        :page-sizes="SelectpageMsg.pageSizes"
+        :page-size="SelectpageMsg.pageSize"
+        :total="SelectpageMsg.total">
+      </pagination>
+    </el-tab-pane>
+
+    <!-- 4全部 -->
+    <el-tab-pane>
+      <span slot="label">全部</span>
+      <div class="table-setting-warp">
+        <div class="table-setting-icon el-icon-setting" @click="chooseMsg(4)"></div>
+        <el-table
+          :data="contractListDatas"
+          border @sort-change="sortChange">
+          <el-table-column
+            label="序号"
+            type="index"
+            width="60">
+          </el-table-column>
+
+          <template v-for="item in fieldList4">
+            <template v-if="item.prop == 'status'">
+              <el-table-column
+                label="状态" min-width="120">
+                <template slot-scope="scope">
+                  <div v-if="scope.row.status==11" class="moveBtn">
+                    <el-tooltip placement="top" effect="light">
+                      <div slot="content" style="width: 130px;height: 55px;overflow: auto;">{{scope.row.contractCancelReason}}</div>
+                      <span>{{scope.row.status | filterStatus }}</span>
+                    </el-tooltip>
+                  </div>
+                  <div v-else>
+                    <span>{{scope.row.status | filterStatus }}</span>
+                  </div>
+                </template>
+              </el-table-column>
+            </template>
+            <template v-else-if="item.prop == 'workSchedule'">
+              <el-table-column
+                prop="nature"
+                label="工时制度" sortable>
+                <template slot-scope="scope">
+                  {{scope.row.workSchedule | filterworkStatus}}
+                </template>
+              </el-table-column>
+            </template>
+            <template v-else>
+              <el-table-column
+                :label="item.name"
+                :prop="item.prop" :key="item.name" sortable min-width="120">
+              </el-table-column>
+            </template>
+          </template>
+
+          <el-table-column
+            label="操作"
+            fixed="right"
+            width="240px">
+            <template slot-scope="scope">
+              <div class="operation">
+                <div v-if="scope.row.canOperate === 0">
+                  <span @click="checkContractMsg(scope.row)" v-show="(permission.indexOf('查看'))!==-1 && scope.row.status !== 1">查看</span>
+                </div>
+                <div v-else>
+                  <span v-show="scope.row.status === 1 && (permission.indexOf('签订'))!=-1" @click="concludeMsg(scope.row)">签订</span>
+                  <span v-show="scope.row.status === 1 && (permission.indexOf('不签订'))!=-1" @click="UnconcludeMsg(scope.row)">不签订</span>
+                  <span v-show="scope.row.status === 2 && (permission.indexOf('办结'))!=-1" @click="BanjieMsg(scope.row)">办结</span>
+                  <span v-show="scope.row.status === 2 && (permission.indexOf('取消'))!=-1" @click="CancelMsg(scope.row)">取消</span>
+                  <span v-show="((scope.row.status === 3 && !scope.row.contractCancelTime) || scope.row.status === 4) && (permission.indexOf('解除'))!=-1" @click="RemoveMsg(scope.row)">解除</span>
+                  <span v-show="(((scope.row.status === 3 && !scope.row.contractCancelTime) || (scope.row.status === 4 && scope.row.deleteTag === 0))) && (permission.indexOf('续签'))!=-1" @click="RenewMsg(scope.row)">续签</span>
+                  <span v-show="(scope.row.status === 3 && !scope.row.contractCancelTime) && (permission.indexOf('变更'))!=-1" @click="ChangeMsg(scope.row)">变更</span>
+                  <span v-show="scope.row.status === 6 && (permission.indexOf('作废'))!=-1 " @click="DeleteMsg(scope.row)">作废</span>
+                  <span v-show="scope.row.status === 1 && (permission.indexOf('编辑'))!=-1" @click="editContractMsg(scope.row)">编辑</span>
+                  <span @click="checkContractMsg(scope.row)" v-show="(permission.indexOf('查看'))!=-1 && scope.row.status != 1">查看</span>
+                  <span @click="putMsg(scope.row)" v-show="scope.row.status === 5 && permission.indexOf('打印')!==-1" >离职证明</span>
+                  <span v-show="permission.indexOf('异地签')!=-1 && ((scope.row.status === 3 && !scope.row.contractCancelTime) || scope.row.status === 4 || scope.row.status === 1)" @click="placeSignMsg(scope.row)">异地签</span>
+                </div>
+              </div>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
+      <br/>
+      <el-button type="primary" size="mini" @click="exportBtn">导 出</el-button>
+      <pagination
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page="pageMsg.currentPage"
+        :page-sizes="pageMsg.pageSizes"
+        :page-size="pageMsg.pageSize"
+        :total="pageMsg.total">
+      </pagination>
+    </el-tab-pane>
+  </el-tabs>
+
+  <!--不签订原因 -->
+  <el-dialog title="不签订原因" :visible.sync="UncancelVisible" width="500px">
+    <el-form :model="UnconcludeForm" label-width="115px">
+      <el-form-item label="不签订原因：" class="mustForm dialog-form">
+        <el-select v-model="UnconcludeForm.contractCancelReason" placeholder="请选择">
+          <el-option
+            v-for="item in reasonSelect"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value">
+          </el-option>
+        </el-select>
+      </el-form-item>
+    </el-form>
+    <span slot="footer" class="dialog-footer">
+      <el-button @click="UncancelVisible = false" class="false" size="mini">取 消</el-button>
+      <el-button type="primary" @click="UnconcludeSave" size="mini">确 定</el-button>
+    </span>
+  </el-dialog>
+
+  <!-- 解除合同 -->
+  <el-dialog title="解除合同" :visible.sync="RemoveVisible" width="500px">
+    <el-form :model="RemoveForm" label-width="110px" class="dialog-form" :rules="rulesRemove" ref="RemoveForm">
+      <el-form-item label="姓　名：">
+        {{RemoveForm.name}}
+      </el-form-item>
+      <el-form-item label="身份证号：">
+        {{RemoveForm.idCardNumber}}
+      </el-form-item>
+      <el-form-item label="合同开始时间：">
+        {{RemoveForm.contractBeginDate}}
+      </el-form-item>
+      <el-form-item label="合同结束时间：">
+        {{RemoveForm.contractEndDate}}
+      </el-form-item>
+      <el-form-item label="解 除 时 间：" prop="contractCancelTime">
+        <el-date-picker
+          v-model="RemoveForm.contractCancelTime"
+          type="date"
+          placeholder="请选择解除时间">
+        </el-date-picker>
+      </el-form-item>
+      <el-form-item label="解 除 原 因：" prop="contractCancelReason">
+        <el-select v-model="RemoveForm.contractCancelReason" clearable placeholder="请选择解除原因">
+          <el-option
+            v-for="item in contractCancelReasonOption"
+            :key="item.code"
+            :label="item.codeText"
+            :value="item.codeText">
+          </el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="备　注：">
+        <el-input type="textarea" v-model="RemoveForm.reason"></el-input>
+      </el-form-item>
+    </el-form>
+    <span slot="footer" class="dialog-footer">
+      <el-button @click="RemoveVisible = false" class="false" size="mini">取 消</el-button>
+      <el-button type="primary" @click="RemoveSave('RemoveForm')" size="mini">确 定</el-button>
+    </span>
+  </el-dialog>
+
+  <!-- 作废原因 -->
+  <el-dialog title="作废原因" :visible.sync="DeleteVisible" width="500px">
+    <el-form :model="DeleteForm" label-width="100px">
+      <el-form-item label="作废原因：" class="mustForm dialog-form">
+        <el-input type="textarea" v-model="DeleteForm.contractCancelReason"></el-input>
+      </el-form-item>
+    </el-form>
+    <span slot="footer" class="dialog-footer">
+      <el-button @click="DeleteVisible = false" class="false" size="mini">取 消</el-button>
+      <el-button type="primary" @click="DeleteSave" size="mini">确 定</el-button>
+    </span>
+  </el-dialog>
+
+  <!-- 异地签 -->
+  <el-dialog title="异地签" :visible.sync="SignVisible" width="500px">
+    <el-form :model="SignForm" label-width="100px">
+      <el-form-item label="合同主体：" class="mustForm">
+          <div class="search-form_item">
+            <search-dept-tree :orgDatas="orgDatas1" ref="deptTree"/>
+          </div>
+      </el-form-item>
+      <el-form-item label="解除时间：" class="mustForm" v-show="this.contractStatusNumber === 3 || this.contractStatusNumber === 4">
+        <el-date-picker
+          v-model="SignForm.signTime"
+          type="date"
+          placeholder="选择解除时间">
+        </el-date-picker>
+      </el-form-item>
+    </el-form>
+    <span slot="footer" class="dialog-footer">
+      <el-button @click="SignVisible = false" class="false" size="mini">取 消</el-button>
+      <el-button type="primary" @click="SignSave" size="mini">确 定</el-button>
+    </span>
+  </el-dialog>
+
+  <!--选择显示字段-->
+  <ChooseColumn :chooseData="chooseData" ref="chooseColumn"></ChooseColumn>
+
+  <!-- 导出列表 -->
+  <form style="display:none" name="form" method="POST" ref="submitExcel" id="submitExcel" :action="hostBaseUrl+'/contract/exportDetail'">
+    <p>keyword: <input type="text" id="keyword" name="keyword" value="" /></p>
+    <p>endDate: <input type="text" id="endDate" name="endDate" value="" /></p>
+    <p>status: <input type="text" id="status" name="status" value="" /></p>
+    <input type="submit" value="Submit"/>
+  </form>
+</div>
+</template>
+<script>
+  import { mapGetters, mapMutations } from 'vuex'
+  import { getContractList, editContract, startContract, getOffsiteSave, getWaitReleaseList, getContractSelect } from 'static/api/contract/contract'
+  import Pagination from 'components/Pagination.vue'
+  import { contractStatus, getfilterworkStatus } from 'assets/js/filters'
+  import { timeToString, timeZeroToString } from 'assets/js/common'
+  import { getToken } from 'assets/js/util'
+  import {listByUserId, getSysDic} from 'static/api/common/common'
+  import ChooseColumn from 'components/ChooseColumn'
+  import { hostBaseUrl } from 'utils/config'
+  import { getExmine } from 'assets/js/exmine'
+  import SearchDeptTree from 'components/SearchDeptTree'
+  export default {
+    data () {
+      return {
+        orgDatas1: {
+          filterName: '',
+          orgId: '',
+          dataTree: [],
+          showTree: false,
+          isLimit: '0'
+        },
+        rulesRemove: {
+          contractCancelTime: [
+            { type: 'date', required: true, message: '请选择解除时间', trigger: 'change' }
+          ],
+          contractCancelReason: [
+            { required: true, message: '请选择解除原因', trigger: 'change' }
+          ]
+        },
+        tabTitle: '待签订',
+        hostBaseUrl: '',
+        contractListDatas: [],
+        ContractSelectList: [],
+        WaitReleaseList: [],
+        SignedList: [],
+        pageMsg: {
+          currentPage: 1,
+          pageSize: 10,
+          pageSizes: [10, 20, 50],
+          total: 0
+        },
+        SelectpageMsg: {
+          currentPage: 1,
+          pageSize: 10,
+          pageSizes: [10, 20, 50],
+          total: 0
+        },
+        ReleasepageMsg: {
+          currentPage: 1,
+          pageSize: 10,
+          pageSizes: [10, 20, 50],
+          total: 0
+        },
+        SignedpageMsg: {
+          currentPage: 1,
+          pageSize: 10,
+          pageSizes: [10, 20, 50],
+          total: 0
+        },
+        /** 签订**/
+        concludeForm: {
+          id: '',
+          userId: '',
+          status: '',
+          contractPeriod: ''
+        },
+        /** 不签订**/
+        UncancelVisible: false,
+        UnconcludeForm: {
+          id: '',
+          userId: '',
+          contractCancelReason: ''
+        },
+        reasonSelect: [
+          {value: '离职', label: '离职'},
+          {value: '调出', label: '调出'},
+          {value: '终止挂靠', label: '终止挂靠'},
+          {value: '其它', label: '其它'}
+        ],
+        /** 解除**/
+        RemoveVisible: false,
+        RemoveForm: {
+          id: '',
+          userId: '',
+          contractCancelReason: '',
+          contractCancelTime: '',
+          reason: '',
+          contractSubjectId: ''
+        },
+        /* 合同解除原因 */
+        contractCancelReasonOption: [],
+        RemoveSelect: [
+          {value: '辞职', label: '辞职'},
+          {value: '终止', label: '终止'},
+          {value: '协商解除', label: '协商解除'},
+          {value: '合同终止', label: '合同终止'},
+          {value: '自动离职', label: '自动离职'},
+          {value: '自动终止', label: '自动终止'},
+          {value: '调动解除', label: '调动解除'},
+          {value: '调动终止', label: '调动终止'}
+        ],
+        /** 作废**/
+        DeleteVisible: false,
+        DeleteForm: {
+          id: '',
+          userId: '',
+          contractCancelReason: '',
+          contractSubjectId: ''
+        },
+        /** 办结**/
+        BanjieForm: {
+          id: '',
+          status: '',
+          userId: ''
+        },
+        /** 取消**/
+        CancelForm: {
+          id: '',
+          status: '',
+          userId: ''
+        },
+        baseInformation: [],
+        /* 异地签 */
+        SignVisible: false,
+        SignForm: {
+          orgName: '',
+          signTime: ''
+        },
+        contractSubjectId: '',
+        contractStatusNumber: '',
+        // 选择显示字段
+        fieldList: [],
+        fieldList2: [],
+        fieldList3: [],
+        fieldList4: [],
+        chooseData: {
+          chooseVisible: false,
+          filedType: 'contract',
+          fieldList: []
+        },
+        type: 1,
+        prop1: '',
+        order1: '',
+        prop2: '',
+        order2: '',
+        prop3: '',
+        order3: '',
+        prop4: '',
+        order4: '',
+        name: '',
+        options: this.getDeepSearchOptions
+      }
+    },
+    components: {
+      Pagination,
+      /* SearchTree, */
+      ChooseColumn,
+      SearchDeptTree
+    },
+    computed: {
+      ...mapGetters(['getContracrArr', 'getContractClicked', 'getIsDel', 'getDeepSearchOptions']),
+      permission () {
+        return getExmine().infoContractContract
+      },
+      SignedListParams () {
+        return {
+          page: this.SignedpageMsg.currentPage,
+          size: this.SignedpageMsg.pageSize,
+          sList: 1,
+          keyword: this.getContracrArr.keyword,
+          status: '',
+          endDate: this.getContracrArr.endDate ? timeZeroToString(this.getContracrArr.endDate) : null,
+          prop: this.prop1,
+          order: this.order1,
+          options: this.getDeepSearchOptions
+        }
+      },
+      WaitReleaseParams () {
+        return {
+          keyword: this.getContracrArr.keyword,
+          status: '',
+          endDate: this.getContracrArr.endDate ? timeZeroToString(this.getContracrArr.endDate) : null,
+          page: this.ReleasepageMsg.currentPage,
+          size: this.ReleasepageMsg.pageSize,
+          prop: this.prop2,
+          order: this.order2,
+          options: this.getDeepSearchOptions
+        }
+      },
+      SelectParams () {
+        return {
+          keyword: this.getContracrArr.keyword,
+          status: '',
+          endDate: this.getContracrArr.endDate ? timeZeroToString(this.getContracrArr.endDate) : null,
+          page: this.SelectpageMsg.currentPage,
+          size: this.SelectpageMsg.pageSize,
+          prop: this.prop3,
+          order: this.order3,
+          options: this.getDeepSearchOptions
+        }
+      },
+      contractParams () {
+        return {
+          keyword: this.getContracrArr.keyword,
+          status: this.getContracrArr.status,
+          endDate: this.getContracrArr.endDate ? timeZeroToString(this.getContracrArr.endDate) : null,
+          page: this.pageMsg.currentPage,
+          size: this.pageMsg.pageSize,
+          prop: this.prop4,
+          order: this.order4,
+          options: this.getDeepSearchOptions
+        }
+      }
+    },
+    methods: {
+      ...mapMutations({
+        setDelType: 'SET_ACCEPT_IS_DELETE'
+      }),
+      exportBtn () {
+        document.getElementById('keyword').setAttribute('value', this.getContracrArr.keyword ? this.getContracrArr.keyword : '')
+        document.getElementById('endDate').setAttribute('value', this.getContracrArr.endDate ? timeZeroToString(this.getContracrArr.endDate) : '')
+        document.getElementById('status').setAttribute('value', this.getContracrArr.status ? this.getContracrArr.status : '')
+        this.$refs.submitExcel.submit()
+      },
+      putMsg (row) {
+        this.$router.push({
+          name: '解除合同打印',
+          params: {
+            contractId: row.id,
+            userId: row.userId,
+            cancelTime: row.contractCancelTime,
+            contractSub: row.contractSubject
+          }
+        })
+      },
+      handleClick (tab, event) {
+        if (tab.index === '0') {
+          this.type = 1
+          this.tabTitle = '待签订'
+          this._getUserFiled()
+          this.$store.commit('SET_CONTRACT_ALL_SELECT', false)
+        }
+        if (tab.index === '1') {
+          this.type = 2
+          this.tabTitle = '待解除'
+          this._getUserFiled()
+          this.$store.commit('SET_CONTRACT_ALL_SELECT', false)
+        }
+        if (tab.index === '2') {
+          this.type = 3
+          this.tabTitle = '待续签'
+          this._getUserFiled()
+          this.$store.commit('SET_CONTRACT_ALL_SELECT', false)
+        }
+        if (tab.index === '3') {
+          this.type = 4
+          this.tabTitle = '全部'
+          this._getUserFiled()
+          this.$store.commit('SET_CONTRACT_ALL_SELECT', true)
+        }
+      },
+      editContractMsg (row) {
+        this.$router.push({
+          name: '合同编辑',
+          params: {
+            contractId: row.id,
+            type: 'edit'
+          }
+        })
+      },
+      checkContractMsg (row) {
+        this.$router.push({
+          name: '合同详情',
+          params: {
+            contractId: row.id
+          }
+        })
+      },
+      RenewMsg (row) {
+        this.$router.push({
+          name: '合同编辑',
+          params: {
+            contractId: row.id,
+            type: 'renew'
+          }
+        })
+      },
+      ChangeMsg (row) {
+        this.$router.push({
+          name: '合同编辑',
+          params: {
+            contractId: row.id,
+            type: 'change'
+          }
+        })
+      },
+      /** 签订**/
+      concludeMsg (row) {
+        this.concludeForm.userAdress = row.userAdress
+        if (!this.concludeForm.userAdress) {
+          this.$message.warning({
+            message: '请将信息填写完整才可进行签订操作!'
+          })
+          return
+        }
+        this.concludeForm.userId = row.userId
+        this.concludeForm.id = row.id
+        this.$confirm('确定' + row.name + '的合同已打印，并且完成线下签订', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          let preload = {
+            id: this.concludeForm.id,
+            status: 2,
+            userId: this.concludeForm.userId
+          }
+          editContract(preload).then((data) => {
+            this.$message.success('操作成功')
+            setTimeout(() => {
+              this._getSignedList()
+              this._getContractList()
+            }, 500)
+          })
+        }).catch(() => {})
+      },
+      /** 不签订原因**/
+      UnconcludeMsg (row) {
+        this.UncancelVisible = true
+        this.UnconcludeForm.id = row.id
+        this.UnconcludeForm.userId = row.userId
+      },
+      UnconcludeSave () {
+        let preload = {
+          id: this.UnconcludeForm.id,
+          contractCancelReason: this.UnconcludeForm.contractCancelReason,
+          status: 11,
+          userId: this.UnconcludeForm.userId
+        }
+        if (!this.UnconcludeForm.contractCancelReason) {
+          this.$message.warning({
+            message: '请选择不签订原因!'
+          })
+          return
+        }
+        editContract(preload).then((data) => {
+          this.$message.success('操作成功')
+          setTimeout(() => {
+            this._getSignedList()
+            this._getContractList()
+            this.UncancelVisible = false
+          }, 500)
+        })
+      },
+      /** 办结**/
+      BanjieMsg (row) {
+        this.BanjieForm.id = row.id
+        this.BanjieForm.userId = row.userId
+        this.$confirm('确定' + row.name + '合同手续已办结，并且已盖章', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          let preload = {
+            id: this.BanjieForm.id,
+            status: 6,
+            userId: this.BanjieForm.userId
+          }
+          editContract(preload).then((data) => {
+            this.$message.success('操作成功')
+            setTimeout(() => {
+              this._getSignedList()
+              this._getContractList()
+            }, 500)
+          })
+        }).catch(() => {})
+      },
+      /** 取消**/
+      CancelMsg (row) {
+        this.CancelForm.id = row.id
+        this.CancelForm.userId = row.userId
+        this.$confirm('确定取消，重新打印并签订合同', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          let preload = {
+            id: this.CancelForm.id,
+            status: 1,
+            userId: this.CancelForm.userId
+          }
+          editContract(preload).then((data) => {
+            this.$message.success('操作成功')
+            setTimeout(() => {
+              this._getSignedList()
+              this._getContractList()
+            }, 500)
+          })
+        }).catch(() => {})
+      },
+      /** 解除**/
+      RemoveMsg (row) {
+        this.RemoveVisible = true
+        this.RemoveForm.id = row.id
+        this.RemoveForm.userId = row.userId
+        this.RemoveForm.contractSubject = row.contractSubject
+        this.RemoveForm.name = row.name
+        this.RemoveForm.telephone = row.telephone
+        this.RemoveForm.idCardNumber = row.idCardNumber
+        this.RemoveForm.contractNumber = row.contractNumber
+        this.RemoveForm.contractPeriod = row.contractPeriod
+        this.RemoveForm.contractBeginDate = row.contractBeginDate
+        this.RemoveForm.contractEndDate = row.contractEndDate
+        this.RemoveForm.workSchedule = row.workSchedule
+        this.RemoveForm.salary = row.salary
+        this.RemoveForm.trySalary = row.trySalary
+        this.RemoveForm.workContent = row.workContent
+        this.RemoveForm.workAdress = row.workAdress
+        this.RemoveForm.userAdress = row.userAdress
+        this.RemoveForm.zipCode = row.zipCode
+        this.RemoveForm.contractCancelReason = row.contractCancelReason
+        this.RemoveForm.contractCancelTime = row.contractCancelTime
+        this.RemoveForm.contractSubjectId = row.contractSubjectId
+        this.RemoveForm.levelOne = row.levelOne
+        this.deptNo = row.oldSubjectId
+      },
+      RemoveSave (formName) {
+        this.$refs[formName].validate((valid) => {
+          if (valid) {
+            let RemoveParams = {
+              userId: getToken('loginId'),
+              actType: 'contractRelease',
+              id: this.RemoveForm.id,
+              employeeId: this.RemoveForm.userId,
+              deptNo: this.deptNo,
+              name: this.RemoveForm.name,
+              telephone: this.RemoveForm.telephone,
+              idNo: this.RemoveForm.idCardNumber,
+              contractSubject: this.RemoveForm.contractSubject,
+              contractNumber: this.RemoveForm.contractNumber,
+              contractPeriod: this.RemoveForm.contractPeriod,
+              contractBeginDate: this.RemoveForm.contractBeginDate,
+              contractEndDate: this.RemoveForm.contractEndDate,
+              workSchedule: this.RemoveForm.workSchedule,
+              salary: this.RemoveForm.salary,
+              trySalary: this.RemoveForm.trySalary,
+              workContent: this.RemoveForm.workContent,
+              workAdress: this.RemoveForm.workAdress,
+              userAdress: this.RemoveForm.userAdress,
+              zipCode: this.RemoveForm.zipCode,
+              remark: this.RemoveForm.remark,
+              contractCancelReason: this.RemoveForm.contractCancelReason,
+              contractCancelTime: timeToString(this.RemoveForm.contractCancelTime),
+              reason: this.RemoveForm.reason,
+              contractSubjectId: this.RemoveForm.contractSubjectId,
+              levelOne: this.RemoveForm.levelOne
+            }
+            let contractEndDate = this.RemoveForm.contractEndDate
+           // let newEndDate = new Date(contractEndDate.replace('-', '/').replace('-', '/'))
+            let newEndDate = new Date(contractEndDate)
+            let newCancelTime = this.RemoveForm.contractCancelTime
+            if (contractEndDate && (!this.RemoveForm.contractCancelTime || newEndDate.getTime() < newCancelTime.getTime())) {
+              this.$message.warning('解除时间不正确!')
+              return false
+            }
+            startContract(RemoveParams).then((data) => {
+              this.$message.success('操作成功')
+              setTimeout(() => {
+                this._getWaitReleaseList()
+                this._getContractList()
+                this.RemoveVisible = false
+                this.RemoveForm = {
+                  contractCancelReason: '',
+                  contractCancelTime: ''
+                }
+              }, 400)
+            })
+          } else {
+            return false
+          }
+        })
+      },
+      /** 作废原因**/
+      DeleteMsg (row) {
+        this.DeleteVisible = true
+        this.DeleteForm.id = row.id
+        this.DeleteForm.userId = row.userId
+        this.DeleteForm.contractSubject = row.contractSubject
+        this.DeleteForm.name = row.name
+        this.DeleteForm.telephone = row.telephone
+        this.DeleteForm.idCardNumber = row.idCardNumber
+        this.DeleteForm.contractNumber = row.contractNumber
+        this.DeleteForm.contractPeriod = row.contractPeriod
+        this.DeleteForm.contractBeginDate = row.contractBeginDate
+        this.DeleteForm.contractEndDate = row.contractEndDate
+        this.DeleteForm.workSchedule = row.workSchedule
+        this.DeleteForm.salary = row.salary
+        this.DeleteForm.trySalary = row.trySalary
+        this.DeleteForm.workContent = row.workContent
+        this.DeleteForm.workAdress = row.workAdress
+        this.DeleteForm.userAdress = row.userAdress
+        this.DeleteForm.zipCode = row.zipCode
+        this.DeleteForm.remark = row.remark
+        this.DeleteForm.contractSubjectId = row.contractSubjectId
+        this.DeleteForm.levelOne = row.levelOne
+        this.deptNo = row.oldSubjectId
+      },
+      DeleteSave () {
+        let DeleteParams = {
+          id: this.DeleteForm.id,
+          userId: getToken('loginId').toString(),
+          employeeId: this.DeleteForm.userId,
+          name: this.DeleteForm.name,
+          telephone: this.DeleteForm.telephone,
+          idNo: this.DeleteForm.idCardNumber,
+          contractSubject: this.DeleteForm.contractSubject,
+          contractNumber: this.DeleteForm.contractNumber,
+          contractPeriod: this.DeleteForm.contractPeriod,
+          contractBeginDate: this.DeleteForm.contractBeginDate,
+          contractEndDate: this.DeleteForm.contractEndDate,
+          workSchedule: this.DeleteForm.workSchedule,
+          salary: this.DeleteForm.salary,
+          trySalary: this.DeleteForm.trySalary,
+          workContent: this.DeleteForm.workContent,
+          workAdress: this.DeleteForm.workAdress,
+          userAdress: this.DeleteForm.userAdress,
+          zipCode: this.DeleteForm.zipCode,
+          remark: this.DeleteForm.remark,
+          contractCancelReason: this.DeleteForm.contractCancelReason,
+          actType: 'contractVoid',
+          deptNo: this.deptNo,
+          contractSubjectId: this.DeleteForm.contractSubjectId,
+          levelOne: this.DeleteForm.levelOne
+        }
+        if (!this.DeleteForm.contractCancelReason) {
+          this.$message.warning({
+            message: '请填写作废原因!'
+          })
+          return
+        }
+        startContract(DeleteParams).then((data) => {
+          this.$message.success('操作成功')
+          setTimeout(() => {
+            this._getSignedList()
+            this._getWaitReleaseList()
+            this._getContractSelect()
+            this._getContractList()
+            this.DeleteForm.contractCancelReason = ''
+            this.DeleteVisible = false
+          }, 400)
+        })
+      },
+      /* 1待签订 */
+      _getSignedList () {
+        getContractList(this.SignedListParams).then(data => {
+          if (data.result) {
+            if (data.result.records) {
+              this.SignedList = data.result.records
+            }
+            this.SignedpageMsg.total = data.result.total
+          }
+        })
+      },
+      /** 分页**/
+      SignedhandleSizeChange (pageSize) {
+        this.SignedpageMsg.pageSize = pageSize
+        this._getSignedList()
+      },
+      SignedhandleCurrentChange (currentPage) {
+        this.SignedpageMsg.currentPage = currentPage
+        this._getSignedList()
+      },
+      /* 2待解除列表 */
+      _getWaitReleaseList () {
+        getWaitReleaseList(this.WaitReleaseParams).then(data => {
+          if (data.result) {
+            if (data.result.records) {
+              this.WaitReleaseList = data.result.records
+            }
+            this.ReleasepageMsg.total = data.result.total
+          }
+        })
+      },
+      /** 分页**/
+      ReleasehandleSizeChange (pageSize) {
+        this.ReleasepageMsg.pageSize = pageSize
+        this._getWaitReleaseList()
+      },
+      ReleasehandleCurrentChange (currentPage) {
+        this.ReleasepageMsg.currentPage = currentPage
+        this._getWaitReleaseList()
+      },
+      /* 3待续签 */
+      _getContractSelect () {
+        getContractSelect(this.SelectParams).then(data => {
+          if (data.result) {
+            if (data.result.records) {
+              this.ContractSelectList = data.result.records
+            }
+            this.SelectpageMsg.total = data.result.total
+          }
+        })
+      },
+      /** 分页**/
+      SelecthandleSizeChange (pageSize) {
+        this.SelectpageMsg.pageSize = pageSize
+        this._getContractSelect()
+      },
+      SelecthandleCurrentChange (currentPage) {
+        this.SelectpageMsg.currentPage = currentPage
+        this._getContractSelect()
+      },
+      /* 4全部列表 */
+      _getContractList () {
+        getContractList(this.contractParams).then((data) => {
+          if (data.result) {
+            if (data.result.records) {
+              this.contractListDatas = data.result.records
+            }
+            this.pageMsg.total = data.result.total
+          }
+        })
+      },
+      /** 分页**/
+      handleSizeChange (pageSize) {
+        this.pageMsg.pageSize = pageSize
+        this._getContractList()
+      },
+      handleCurrentChange (currentPage) {
+        this.pageMsg.currentPage = currentPage
+        this._getContractList()
+      },
+      /* 异地签 */
+      placeSignMsg (row) {
+        this.SignVisible = true
+        this.contractId = row.id
+        this.contractStatusNumber = row.status
+        setTimeout(() => {
+          this.$refs.deptTree.clearSelectTree()
+        })
+        setTimeout(() => {
+          this.$refs.deptTree.getCompany('1')
+        }, 200)
+      },
+      SignSave () {
+        let param = {
+          id: this.contractId,
+          contractSubjectId: this.orgDatas1.orgId,
+          contractCancelTime: this.SignForm.signTime ? timeToString(this.SignForm.signTime) : ''
+        }
+        if (!this.orgDatas1.orgId) {
+          this.$message.warning('请填写合同主体!')
+          return false
+        }
+        if (this.contractStatusNumber === 3 || this.contractStatusNumber === 4) {
+          if (!this.SignForm.signTime) {
+            this.$message.warning('请填写解除时间!')
+            return false
+          }
+        }
+        getOffsiteSave(param).then(data => {
+          this.$message.success('操作成功')
+          this._getContractList()
+          this._getSignedList()
+          this.SignVisible = false
+        })
+      },
+      // 选择显示字段
+      chooseMsg (type) {
+        this.chooseData.chooseVisible = true
+        if (type === 1) {
+          this.chooseData.fieldList = this.fieldList
+        } else if (type === 2) {
+          this.chooseData.fieldList = this.fieldList2
+        } else if (type === 3) {
+          this.chooseData.fieldList = this.fieldList3
+        } else if (type === 4) {
+          this.chooseData.fieldList = this.fieldList4
+        }
+        this.$refs.chooseColumn.chooseMsg()
+      },
+      // 获取原来选择字段
+      _getUserFiled (type) {
+        let preload = {
+          userId: getToken('loginId').toString(),
+          type: 'contract'
+        }
+        if (this.type === 1) {
+          this.fieldList = []
+          listByUserId(preload).then(data => {
+            if (data.result.length) {
+              data.result.forEach((obj) => {
+                this.fieldList.push({
+                  name: obj.name,
+                  prop: obj.prop,
+                  orderColumn: obj.orderColumn
+                })
+              })
+              setTimeout(() => {
+                this._getSignedList()
+              }, 400)
+            }
+          })
+        } else if (this.type === 2) {
+          this.fieldList2 = []
+          listByUserId(preload).then((data) => {
+            if (data.result.length) {
+              data.result.forEach((obj) => {
+                this.fieldList2.push({
+                  name: obj.name,
+                  prop: obj.prop,
+                  orderColumn: obj.orderColumn
+                })
+              })
+              setTimeout(() => {
+                this._getWaitReleaseList()
+              }, 400)
+            }
+          })
+        } else if (this.type === 3) {
+          this.fieldList3 = []
+          listByUserId(preload).then((data) => {
+            if (data.result.length) {
+              data.result.forEach((obj) => {
+                this.fieldList3.push({
+                  name: obj.name,
+                  prop: obj.prop,
+                  orderColumn: obj.orderColumn
+                })
+              })
+              setTimeout(() => {
+                this._getContractSelect()
+              }, 400)
+            }
+          })
+        } else if (this.type === 4) {
+          this.fieldList4 = []
+          listByUserId(preload).then((data) => {
+            if (data.result.length) {
+              data.result.forEach((obj) => {
+                this.fieldList4.push({
+                  name: obj.name,
+                  prop: obj.prop,
+                  orderColumn: obj.orderColumn
+                })
+              })
+              setTimeout(() => {
+                this._getContractList()
+              }, 400)
+            }
+          })
+        }
+      },
+      // 排序
+      sortChange (column, prop, order) {
+        if (this.type === 1) {
+          if (column && column.prop) {
+            console.log(this.fieldList)
+            let orderColumn1 = this.fieldList.filter(item => item.prop === column.prop)[0].orderColumn
+            this.prop1 = orderColumn1
+            this.order1 = column.order
+            this._getSignedList()
+          } else {
+            this.prop1 = ''
+            this.order1 = ''
+            this._getSignedList()
+          }
+        } else if (this.type === 2) {
+          if (column && column.prop) {
+            let orderColumn2 = this.fieldList2.filter(item => item.prop === column.prop)[0].orderColumn
+            this.prop2 = orderColumn2
+            this.order2 = column.order
+            this._getWaitReleaseList()
+          } else {
+            this.prop2 = ''
+            this.order2 = ''
+            this._getWaitReleaseList()
+          }
+        } else if (this.type === 3) {
+          if (column && column.prop) {
+            let orderColumn3 = this.fieldList3.filter(item => item.prop === column.prop)[0].orderColumn
+            this.prop3 = orderColumn3
+            this.order3 = column.order
+            this._getContractSelect()
+          } else {
+            this.prop3 = ''
+            this.order3 = ''
+            this._getContractSelect()
+          }
+        } else if (this.type === 4) {
+          if (column && column.prop) {
+            let orderColumn4 = this.fieldList4.filter(item => item.prop === column.prop)[0].orderColumn
+            this.prop4 = orderColumn4
+            this.order4 = column.order
+            this._getContractList()
+          } else {
+            this.prop4 = ''
+            this.order4 = ''
+            this._getContractList()
+          }
+        }
+      },
+      /* 获取数字字典 */
+      async _getQueryClassList () {
+      /* 合同解除 */
+        await getSysDic('contractCancelReason').then((data) => {
+          if (data.result) {
+            data.result.forEach(item => {
+              if (item.enable === 1) {
+                this.contractCancelReasonOption.push(item)
+              }
+            })
+          }
+        })
+      }
+    },
+    filters: {
+      filterStatus (str) {
+        return contractStatus(str)
+      },
+      filterworkStatus (str) {
+        return getfilterworkStatus(str)
+      }
+    },
+    watch: {
+      getContractClicked (val) {
+        if (val) {
+          if (this.tabTitle === '待签订') {
+            this.SignedhandleCurrentChange(1)
+          } else if (this.tabTitle === '待解除') {
+            this.ReleasehandleCurrentChange(1)
+          } else if (this.tabTitle === '待续签') {
+            this.SelecthandleCurrentChange(1)
+          } else if (this.tabTitle === '全部') {
+            this.handleCurrentChange(1)
+          }
+        }
+        this.$store.commit('SET_CONTRACT_CLICKED', false)
+      },
+      getIsDel (val) {
+        if (val) {
+          if (this.tabTitle === '待签订') {
+            this.SignedhandleCurrentChange(1)
+            this._getSignedList()
+          } else if (this.tabTitle === '待解除') {
+            this.ReleasehandleCurrentChange(1)
+            this._getWaitReleaseList()
+          } else if (this.tabTitle === '待续签') {
+            this.SelecthandleCurrentChange(1)
+            this._getContractSelect()
+          } else if (this.tabTitle === '全部') {
+            this.handleCurrentChange(1)
+            this._getContractList()
+          }
+         /*  this.pageMsg.currentPage = 1
+          this._getFundList() */
+        }
+        this.setDelType('')
+      },
+      getDeepSearchOptions (val) {
+        if (val) {
+          if (this.tabTitle === '待签订') {
+            this.SignedListParams.options = val
+            this.SignedhandleCurrentChange(1)
+          } else if (this.tabTitle === '待解除') {
+            this.WaitReleaseParams.options = val
+            this.ReleasehandleCurrentChange(1)
+          } else if (this.tabTitle === '待续签') {
+            this.SelectParams.options = val
+            this.SelecthandleCurrentChange(1)
+          } else if (this.tabTitle === '全部') {
+            this.contractParams.options = val
+            this.handleCurrentChange(1)
+          }
+          /* this.listParams.options = val
+          this.handleCurrentChange(1) */
+        }
+      }
+    },
+    created () {
+      this._getUserFiled()
+      this.hostBaseUrl = hostBaseUrl
+      this._getQueryClassList()
+    }
+  }
+</script>
+
+<style scoped lang="less">
+.el-select{
+  width:100%;
+}
+.el-form-item.mustForm {
+  position: relative;
+  &::before{
+    content: "*";
+    color: red;
+    position: absolute;
+    top: 15px;
+    left: 5px;
+  }
+}
+</style>
